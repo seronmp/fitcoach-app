@@ -595,17 +595,59 @@
         const remSec = sec % 60;
         document.getElementById('timer-display').innerText = 
             `${mins.toString().padStart(2, '0')}:${remSec.toString().padStart(2, '0')}`;
+  // SBLOCCO AUDIO PER MOBILE (Politica Autoplay)
+    let audioCtx = null;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
     }
 
+    // Listener per sbloccare l'audio al primo tocco/clic sulla pagina
+    document.addEventListener('touchstart', initAudio, { once: true });
+    document.addEventListener('click', initAudio, { once: true });
+
+    // FUNZIONE BEEP AGGIORNATA CON VIBRAZIONE E DOPPIO TONO
     function playBeep() {
         try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            osc.connect(ctx.destination);
-            osc.frequency.value = 800;
-            osc.start();
-            osc.stop(ctx.currentTime + 0.3);
-        } catch (e) {}
+            initAudio();
+            const now = audioCtx.currentTime;
+            
+            // Tono 1 (800 Hz)
+            const osc1 = audioCtx.createOscillator();
+            const gain1 = audioCtx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(800, now);
+            gain1.gain.setValueAtTime(0.3, now);
+            gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            osc1.connect(gain1);
+            gain1.connect(audioCtx.destination);
+            osc1.start(now);
+            osc1.stop(now + 0.2);
+
+            // Tono 2 più acuto (1200 Hz)
+            const osc2 = audioCtx.createOscillator();
+            const gain2 = audioCtx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(1200, now + 0.2);
+            gain2.gain.setValueAtTime(0.4, now + 0.2);
+            gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.start(now + 0.2);
+            osc2.stop(now + 0.5);
+
+            // Feedback aptico / Vibrazione (se supportata dal dispositivo)
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200]);
+            }
+        } catch (e) {
+            console.log('Audio non riproducibile:', e);
+        }
     }
 </script>
 
