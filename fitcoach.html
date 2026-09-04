@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitCoach 1-on-1 | Pro UI & Supabase</title>
+    <!-- SUPABASE JS CLIENT CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-color: #090d16;
+            --card-bg: rgba(22, 30, 46, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --accent-color: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.35);
+            --accent-hover: #0284c7;
+            --success-color: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.4);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --gradient-accent: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            --gradient-card: linear-gradient(180deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
+            color: var(--text-color);
+            line-height: 1.5;
+            padding: 15px;
+            padding-bottom: 110px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* ANIMAZIONI KEYFRAMES */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px var(--accent-glow); }
+            50% { box-shadow: 0 0 20px var(--accent-glow); }
+            100% { box-shadow: 0 0 5px var(--accent-glow); }
+        }
+
+        @keyframes timerPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        /* HEADER & LANG SELECTOR */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .brand-title {
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .lang-select {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--card-border);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .lang-select:hover {
+            border-color: var(--accent-color);
+        }
+
+        /* TABS NAVIGATION */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: var(--card-bg);
+            padding: 6px;
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(12px);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 14px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-radius: 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn.active {
+            background: var(--gradient-accent);
+            color: #0f172a;
+            font-weight: 700;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        /* CARDS MODERN */
+        .card {
+            background: var(--gradient-card);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 18px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        .exercise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 14px;
+        }
+
+        .exercise-card {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .exercise-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-color);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--accent-color);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        /* BUTTONS WITH HOVER ANIMATIONS */
+        .btn-add {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: rgba(56, 189, 248, 0.05);
+            border: 1px dashed var(--accent-color);
+            color: var(--accent-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add:hover {
+            background: var(--gradient-accent);
+            color: #0f172a;
+            border-style: solid;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 12px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action:hover {
+            background: var(--success-color);
+            color: #0f172a;
+            box-shadow: 0 4px 15px var(--success-glow);
+            transform: scale(1.01);
+        }
+
+        .time-tracker {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(56, 189, 248, 0.05);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 18px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--card-border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-accent);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* TIMER BAR (NEON & GLOW) */
+        .timer-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 1px solid var(--accent-color);
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.7);
+            z-index: 1000;
+            animation: pulseGlow 4s infinite;
+        }
+
+        .timer-banner.running {
+            animation: timerPulse 1s infinite alternate;
+        }
+
+        .timer-display {
+            font-size: 2rem;
+            font-weight: 900;
+            font-family: monospace;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .timer-controls button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 6px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .timer-controls button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-start { background: var(--success-color); color: #0f172a; }
+        .btn-start:hover { box-shadow: 0 0 12px var(--success-glow); }
+        .btn-reset { background: var(--card-border); color: var(--text-color); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header-bar">
+        <div class="brand-title">FITCOACH 1-ON-1</div>
+        <select class="lang-select" id="lang-selector" onchange="changeLanguage(this.value)">
+            <option value="it">🇮🇹 Italiano</option>
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="en">🇬🇧 English</option>
+        </select>
+    </div>
+
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('client-tab', event)" id="tab-client">🏋️ Scheda Live</button>
+        <button class="tab-btn" onclick="switchTab('builder-tab', event)" id="tab-builder">⏱️ Allenamento 1h</button>
+        <button class="tab-btn" onclick="switchTab('library-tab', event)" id="tab-library">📚 Libreria DB</button>
+    </nav>
+
+    <div id="client-tab" class="tab-content active">
+        <div class="card">
+            <h2 id="client-name">Caricamento Cliente...</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;" id="client-info">Sincronizzazione Supabase Cloud...</p>
+        </div>
+        <div id="active-workout-list"></div>
+    </div>
+
+    <div id="builder-tab" class="tab-content">
+        <div class="card">
+            <h2 id="builder-title">Workout Builder (Sessione 60 Minuti)</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;" id="builder-subtitle">Pianifica lavoro + recupero per rientrare nei 60 minuti.</p>
+            
+            <div class="time-tracker">
+                <div>
+                    <strong id="time-label">Tempo Totale:</strong> <span id="total-time-display">0</span> / 60 <span id="min-label">Minuti</span>
+                    <div class="progress-bar" style="width: 180px;"><div id="time-progress" class="progress-fill"></div></div>
+                </div>
+                <button class="btn-add" style="width: auto; padding: 6px 14px;" onclick="resetBuilder()" id="btn-clear">Svuota</button>
+            </div>
+
+            <div id="builder-workout-list"></div>
+        </div>
+    </div>
+
+    <div id="library-tab" class="tab-content">
+        <div class="card">
+            <h2 id="library-title">Libreria Esercizi (Supabase DB)</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;" id="library-subtitle">Seleziona gli esercizi dal database cloud.</p>
+            <div class="exercise-grid" id="library-grid"></div>
+        </div>
+    </div>
+
+</div>
+
+<div class="timer-banner" id="timer-banner">
+    <div>
+        <div style="font-size: 0.75rem; color: var(--text-muted);" id="timer-label">TIMER RECUPERO ESERCIZIO</div>
+        <div class="timer-display" id="timer-display">00:00</div>
+    </div>
+    <div class="timer-controls">
+        <button class="btn-start" onclick="startRestTimer(60)">60s</button>
+        <button class="btn-start" onclick="startRestTimer(90)">90s</button>
+        <button class="btn-reset" onclick="stopTimer()" id="btn-stop">Stop</button>
+    </div>
+</div>
+
+<script>
+    // CONFIGURAZIONE SUPABASE
+    const SUPABASE_URL = "https://iqktzacvuhspdjdcwcnx.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_pNemlP_TQ_0egMY2C8JwIA_Sf56PFX3";
+    
+    let db = null;
+    if (typeof supabase !== 'undefined' && !SUPABASE_URL.includes('IL_TUO_SUPABASE_URL')) {
+        db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    let currentLang = 'it';
+    let exercisesDatabase = [
+        { id: 1, group_json: { it: "Gambe", de: "Beine", en: "Legs" }, name_json: { it: "Squat con Bilanciere", de: "Kniebeugen con Bilanciere", en: "Barbell Back Squat" }, sets: 4, reps: "8-10", rest_sec: 90, time_min: 8 },
+        { id: 2, group_json: { it: "Glutei", de: "Gesäß", en: "Glutes" }, name_json: { it: "Hip Thrust", de: "Hip Thrust", en: "Barbell Hip Thrust" }, sets: 4, reps: "10-12", rest_sec: 90, time_min: 8 },
+        { id: 3, group_json: { it: "Petto", de: "Brust", en: "Chest" }, name_json: { it: "Panca Piana Bilanciere", de: "Bankdrücken", en: "Barbell Bench Press" }, sets: 4, reps: "6-8", rest_sec: 120, time_min: 9 }
+    ];
+    let currentClient = { name: "Giulia Bianchi", goal: "Ricomposizione", current_session: 4, total_sessions: 10 };
+    let builderWorkout = [];
+    let timerInterval = null;
+
+    const i18n = {
+        it: {
+            tabClient: "🏋️ Scheda Live", tabBuilder: "⏱️ Allenamento 1h", tabLibrary: "📚 Libreria DB",
+            clientTitle: "Scheda Live", builderTitle: "Workout Builder (Sessione 60 Minuti)",
+            builderSubtitle: "Pianifica lavoro + recupero per rientrare nei 60 minuti.", timeLabel: "Tempo Totale:", minLabel: "Minuti",
+            btnClear: "Svuota", libraryTitle: "Libreria Esercizi (Supabase DB)", librarySubtitle: "Seleziona gli esercizi dal database cloud.",
+            timerLabel: "TIMER RECUPERO ESERCIZIO", btnStop: "Stop", warmup: "⏱️ Riscaldamento & Mobilizzazione Cardiovascolare",
+            btnCompleteSet: "▶ Completa & Salva su DB", btnAddBuilder: "+ Aggiungi a Builder (1h)", sets: "Serie", reps: "Reps", rest: "Rec",
+            emptyBuilder: "Aggiungi esercizi dalla Libreria per strutturare la lezione di 1 ora.", timerAlert: "Tempo di recupero terminato!"
+        },
+        de: {
+            tabClient: "🏋️ Live Plan", tabBuilder: "⏱️ 1h Planer", tabLibrary: "📚 Übungen DB",
+            clientTitle: "Live Plan", builderTitle: "Workout Builder (60 Min)",
+            builderSubtitle: "Planen Sie Belastung + Pause für 60 Minuten.", timeLabel: "Gesamtzeit:", minLabel: "Minuten",
+            btnClear: "Leeren", libraryTitle: "Übungsbibliothek (Supabase)", librarySubtitle: "Wählen Sie Übungen aus der Cloud-Datenbank.",
+            timerLabel: "PAUSENTIMER", btnStop: "Stopp", warmup: "⏱️ Aufwärmen & Mobilisation",
+            btnCompleteSet: "▶ Speichern im DB", btnAddBuilder: "+ Zum Builder (1h)", sets: "Sätze", reps: "Wdh", rest: "Pause",
+            emptyBuilder: "Fügen Sie Übungen aus der Bibliothek hinzu.", timerAlert: "Satzpause beendet!"
+        },
+        en: {
+            tabClient: "🏋️ Live Workout", tabBuilder: "⏱️ 1h Builder", tabLibrary: "📚 Library DB",
+            clientTitle: "Live Workout", builderTitle: "Workout Builder (60 Mins)",
+            builderSubtitle: "Plan work + rest periods to fit into 60 minutes.", timeLabel: "Total Time:", minLabel: "Minutes",
+            btnClear: "Clear", libraryTitle: "Exercise Library (Supabase)", librarySubtitle: "Select exercises from cloud database.",
+            timerLabel: "REST TIMER", btnStop: "Stop", warmup: "⏱️ Warm-up & Mobilization",
+            btnCompleteSet: "▶ Complete & Save to DB", btnAddBuilder: "+ Add to Builder (1h)", sets: "Sets", reps: "Reps", rest: "Rest",
+            emptyBuilder: "Add exercises from Library to structure session.", timerAlert: "Rest period finished!"
+        }
+    };
+
+    window.onload = async () => {
+        if (db) {
+            await loadClientData();
+            await loadExercisesFromSupabase();
+        } else {
+            updateUI();
+        }
+    };
+
+    async function loadClientData() {
+        try {
+            const { data } = await db.from('clients').select('*').limit(1).single();
+            if (data) currentClient = data;
+        } catch (e) { console.log('Uso dati demo cliente'); }
+        updateUI();
+    }
+
+    async function loadExercisesFromSupabase() {
+        try {
+            const { data } = await db.from('exercises').select('*');
+            if (data && data.length > 0) exercisesDatabase = data;
+        } catch (e) { console.log('Uso dati demo esercizi'); }
+        updateUI();
+    }
+
+    function changeLanguage(lang) {
+        currentLang = lang;
+        updateUI();
+    }
+
+    function updateUI() {
+        const t = i18n[currentLang];
+
+        document.getElementById('tab-client').innerText = t.tabClient;
+        document.getElementById('tab-builder').innerText = t.tabBuilder;
+        document.getElementById('tab-library').innerText = t.tabLibrary;
+        
+        document.getElementById('client-name').innerText = `${currentClient.name}`;
+        document.getElementById('client-info').innerText = `Obiettivo: ${currentClient.goal} | Sessione #${currentClient.current_session} di ${currentClient.total_sessions}`;
+        
+        document.getElementById('builder-title').innerText = t.builderTitle;
+        document.getElementById('builder-subtitle').innerText = t.builderSubtitle;
+        document.getElementById('time-label').innerText = t.timeLabel;
+        document.getElementById('min-label').innerText = t.minLabel;
+        document.getElementById('btn-clear').innerText = t.btnClear;
+        document.getElementById('library-title').innerText = t.libraryTitle;
+        document.getElementById('library-subtitle').innerText = t.librarySubtitle;
+        document.getElementById('timer-label').innerText = t.timerLabel;
+        document.getElementById('btn-stop').innerText = t.btnStop;
+
+        renderLibrary();
+        renderActiveWorkout();
+        renderBuilder();
+    }
+
+    function switchTab(tabId, e) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        
+        e.target.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    function renderLibrary() {
+        const t = i18n[currentLang];
+        const grid = document.getElementById('library-grid');
+        grid.innerHTML = exercisesDatabase.map(ex => `
+            <div class="exercise-card">
+                <span class="tag">${ex.group_json[currentLang] || ex.group_json['it']}</span>
+                <h4 style="margin-bottom: 4px;">${ex.name_json[currentLang] || ex.name_json['it']}</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">${ex.sets} ${t.sets} × ${ex.reps} | ${t.rest}: ${ex.rest_sec}s</p>
+                <button class="btn-add" onclick="addToBuilder(${ex.id})">${t.btnAddBuilder}</button>
+            </div>
+        `).join('');
+    }
+
+    function renderActiveWorkout() {
+        const t = i18n[currentLang];
+        const list = document.getElementById('active-workout-list');
+        list.innerHTML = exercisesDatabase.slice(0, 3).map((ex, idx) => `
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span class="tag">${ex.group_json[currentLang] || ex.group_json['it']}</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">${idx + 1}</span>
+                </div>
+                <h3>${ex.name_json[currentLang] || ex.name_json['it']}</h3>
+                <p style="color: var(--text-muted); margin-bottom: 12px;">Target: ${ex.sets} ${t.sets} × ${ex.reps}</p>
+                
+                <button class="btn-action" onclick="logAndStartRest('${ex.name_json['it']}', ${ex.sets}, ${ex.rest_sec})">
+                    ${t.btnCompleteSet} (${ex.rest_sec}s)
+                </button>
+            </div>
+        `).join('');
+    }
+
+    async function logAndStartRest(exerciseName, sets, restSec) {
+        if (db && currentClient.id) {
+            await db.from('workout_logs').insert([{ client_id: currentClient.id, exercise_name: exerciseName, completed_sets: sets }]);
+        }
+        startRestTimer(restSec);
+    }
+
+    function addToBuilder(id) {
+        const ex = exercisesDatabase.find(e => e.id === id);
+        if (ex) {
+            builderWorkout.push(ex);
+            renderBuilder();
+        }
+    }
+
+    function renderBuilder() {
+        const t = i18n[currentLang];
+        const container = document.getElementById('builder-workout-list');
+        const totalMinutes = builderWorkout.reduce((sum, item) => sum + item.time_min, 0) + 10;
+
+        document.getElementById('total-time-display').innerText = totalMinutes;
+        const fillPct = Math.min((totalMinutes / 60) * 100, 100);
+        document.getElementById('time-progress').style.width = fillPct + '%';
+
+        if (builderWorkout.length === 0) {
+            container.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 20px;">${t.emptyBuilder}</p>`;
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="exercise-card" style="margin-bottom: 10px; border-color: var(--accent-color);">
+                <strong>${t.warmup}</strong> - 10 ${t.minLabel}
+            </div>
+        ` + builderWorkout.map((ex, idx) => `
+            <div class="exercise-card" style="margin-bottom: 8px;">
+                <div style="display:flex; justify-content:space-between;">
+                    <strong>${idx + 1}. ${ex.name_json[currentLang] || ex.name_json['it']}</strong>
+                    <span style="color: var(--accent-color); font-weight: bold;">~${ex.time_min} min</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">${ex.sets} ${t.sets} × ${ex.reps} (${t.rest}: ${ex.rest_sec}s)</div>
+            </div>
+        `).join('');
+    }
+
+    function resetBuilder() {
+        builderWorkout = [];
+        renderBuilder();
+    }
+
+    function startRestTimer(seconds) {
+        clearInterval(timerInterval);
+        document.getElementById('timer-banner').classList.add('running');
+        let timeLeft = seconds;
+        updateTimerDisplay(timeLeft);
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay(timeLeft);
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timer-banner').classList.remove('running');
+                playBeep();
+                alert(i18n[currentLang].timerAlert);
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(timerInterval);
+        document.getElementById('timer-banner').classList.remove('running');
+        updateTimerDisplay(0);
+    }
+
+    function updateTimerDisplay(sec) {
+        const mins = Math.floor(sec / 60);
+        const remSec = sec % 60;
+        document.getElementById('timer-display').innerText = 
+            `${mins.toString().padStart(2, '0')}:${remSec.toString().padStart(2, '0')}`;
+    }
+
+    function playBeep() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.connect(ctx.destination);
+            osc.frequency.value = 800;
+            osc.start();
+            osc.stop(ctx.currentTime + 0.3);
+        } catch (e) {}
+    }
+</script>
+
+</body>
+</html>
