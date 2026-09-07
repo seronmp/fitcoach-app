@@ -112,7 +112,7 @@
     </div>
   </div>
 
-  <!-- Timer Bar Fissa -->
+  <!-- Timer Bar Fissa in Basso -->
   <footer id="timer-footer" class="hidden sticky bottom-0 bg-slate-800 border-t border-slate-700 p-4 shadow-2xl">
     <div class="max-w-xl mx-auto flex justify-between items-center gap-2">
       <div class="flex flex-col">
@@ -130,7 +130,7 @@
   <script>
     const TRAINER_PIN = "1234";
     const SUPABASE_URL = "https://iqktzacvuhspdjdcwcnx.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxa3R6YWN2dWhzcGRqZGN3Y254Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1Mjg3MjYsImV4cCI6MjEwNDEwNDcyNn0.iTdWadVFqK1nh-iOFrwto7t3tXr346lJ9UpLwETGJnc";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxa3R6YWN2dWhzcGRqZGN3Y254Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzgwMTcsImV4cCI6MjA1NjzgNDAxN30.9-Kk_9kK3jW0l8S_mY7LdZ9Y_S2wL4X3K9Q8P1O0R0M";
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let activeClient = null;
@@ -207,8 +207,11 @@
       ]);
 
       if (error) {
-        alert("Errore durante il salvataggio");
+        alert("Errore durante il salvataggio cliente");
       } else {
+        document.getElementById('new-client-name').value = '';
+        document.getElementById('new-client-goal').value = '';
+        document.getElementById('new-client-sessions').value = '';
         toggleModal('modal-client', false);
         showDashboard();
       }
@@ -267,45 +270,38 @@
     }
 
     async function saveNewExercise() {
-  const name = document.getElementById('new-ex-name').value;
-  const group = document.getElementById('new-ex-group').value;
-  const sets = parseInt(document.getElementById('new-ex-sets').value) || 3;
-  const reps = document.getElementById('new-ex-reps').value || '10';
+      const name = document.getElementById('new-ex-name').value;
+      const group = document.getElementById('new-ex-group').value;
+      const sets = parseInt(document.getElementById('new-ex-sets').value) || 3;
+      const reps = document.getElementById('new-ex-reps').value || '10';
 
-  if (!name) return alert("Inserisci il nome dell'esercizio");
+      if (!name) return alert("Inserisci il nome dell'esercizio");
 
-  try {
-   const { error } = await supabaseClient.from('exercises').insert([
-      {
-        name_json: { it: name },
-        group_json: { it: group },
-        sets: sets,
-        reps: reps
-      }
-    ]);
+      try {
+        const { error } = await supabaseClient.from('exercises').insert([
+          {
+            name_json: { it: name },
+            group_json: { it: group },
+            sets: sets,
+            reps: reps
+          }
+        ]);
 
-    if (error) throw error;
+        if (error) throw error;
 
-    // Pulisce i campi dell'input
-    document.getElementById('new-ex-name').value = '';
-    document.getElementById('new-ex-group').value = '';
-    document.getElementById('new-ex-sets').value = '';
-    document.getElementById('new-ex-reps').value = '';
+        document.getElementById('new-ex-name').value = '';
+        document.getElementById('new-ex-group').value = '';
+        document.getElementById('new-ex-sets').value = '';
+        document.getElementById('new-ex-reps').value = '';
 
-    toggleModal('modal-exercise', false);
-    if (activeClient) loadClientWorkout(activeClient);
-
-  } catch (err) {
-    console.error("Errore salvataggio esercizio:", err);
-    alert("Errore salvataggio esercizio: " + (err.message || JSON.stringify(err)));
-        }
-      ]);
-
-      if (error) {
-        alert("Errore salvataggio esercizio");
-      } else {
         toggleModal('modal-exercise', false);
-        if (activeClient) loadClientWorkout(activeClient);
+        if (typeof activeClient !== 'undefined' && activeClient) {
+          loadClientWorkout(activeClient);
+        }
+
+      } catch (err) {
+        console.error("Errore salvataggio esercizio:", err);
+        alert("Errore salvataggio esercizio: " + (err.message || JSON.stringify(err)));
       }
     }
 
