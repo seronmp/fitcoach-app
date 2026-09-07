@@ -65,26 +65,26 @@
           </span>
         </div>
 
-        <!-- Pulsante per Registrare Nuova Sessione -->
-        <button onclick="toggleModal('modal-session', true)" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition flex justify-center items-center gap-2">
-          ⏱️ Registra Sessione (es. 1 ora)
+        <!-- Pulsante per Creare/Registrare Nuova Sessione -->
+        <button onclick="openSessionBuilder()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold py-3 rounded-xl text-sm transition flex justify-center items-center gap-2">
+          ⏱️ Crea & Pianifica Sessione (es. 60 Minuti)
         </button>
       </div>
 
       <!-- Storico Sessioni svolte -->
       <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
-        <h3 class="text-sm font-bold text-slate-300 mb-2">Storico Sessioni Completate</h3>
-        <div id="sessions-history" class="text-xs text-slate-400 flex flex-col gap-1">
+        <h3 class="text-sm font-bold text-slate-300 mb-2">Storico Sessioni Svolte</h3>
+        <div id="sessions-history" class="text-xs text-slate-400 flex flex-col gap-2">
           Nessuna sessione ancora registrata.
         </div>
       </div>
 
-      <!-- Esercizi -->
+      <!-- Esercizi Disponibili -->
       <div class="flex flex-col gap-4">
         <div class="flex justify-between items-center">
-          <h3 class="text-lg font-bold text-slate-300">Scheda Allenamento</h3>
+          <h3 class="text-lg font-bold text-slate-300">Libreria Esercizi</h3>
           <button onclick="toggleModal('modal-exercise', true)" class="bg-slate-700 hover:bg-slate-600 text-cyan-400 border border-slate-600 text-xs font-bold px-3 py-1.5 rounded-xl transition">
-            + Crea Esercizio
+            + Nuovo Esercizio
           </button>
         </div>
         <div id="exercises-list" class="flex flex-col gap-4"></div>
@@ -108,13 +108,15 @@
     </div>
   </div>
 
-  <!-- MODALE: NUOVA SESSIONE ALLENAMENTO -->
-  <div id="modal-session" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 hidden z-50">
-    <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-sm w-full flex flex-col gap-4">
-      <h3 class="text-lg font-bold text-slate-100">Registra Sessione</h3>
+  <!-- MODALE: CREA SESSIONE DI ALLENAMENTO (TIME-BASED) -->
+  <div id="modal-session" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 hidden z-50 overflow-y-auto">
+    <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-md w-full flex flex-col gap-4 my-auto max-h-[90vh]">
+      <h3 class="text-lg font-bold text-slate-100">Crea Sessione di Allenamento</h3>
+      
+      <!-- Selezione Durata Totale -->
       <div>
-        <label class="text-xs text-slate-400 mb-1 block">Durata Allenamento (Minuti):</label>
-        <select id="session-duration" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+        <label class="text-xs text-slate-400 mb-1 block">Durata Totale Obiettivo:</label>
+        <select id="session-target-duration" onchange="updateSessionTimerUI()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
           <option value="60" selected>60 Minuti (1 Ora)</option>
           <option value="45">45 Minuti</option>
           <option value="30">30 Minuti</option>
@@ -122,13 +124,35 @@
           <option value="120">120 Minuti (2 Ore)</option>
         </select>
       </div>
+
+      <!-- Barra di progresso del tempo allocato -->
+      <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex flex-col gap-1">
+        <div class="flex justify-between text-xs">
+          <span class="text-slate-400">Tempo Assegnato:</span>
+          <span id="session-time-allocated" class="font-bold text-emerald-400">0 / 60 Minuti</span>
+        </div>
+        <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+          <div id="session-progress-bar" class="bg-emerald-500 h-2 w-0 transition-all"></div>
+        </div>
+      </div>
+
+      <!-- Selettore Esercizi per la sessione -->
+      <div class="flex flex-col gap-2">
+        <label class="text-xs text-slate-400">Seleziona Esercizi e assegna minuti:</label>
+        <div id="session-exercises-selector" class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
+          <p class="text-xs text-slate-500">Caricamento esercizi...</p>
+        </div>
+      </div>
+
+      <!-- Note Sessione -->
       <div>
         <label class="text-xs text-slate-400 mb-1 block">Note / Feedback Sessione (opzionale):</label>
-        <textarea id="session-notes" placeholder="es. Ottima intensità, aumentato carico su panca" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400 h-20 resize-none"></textarea>
+        <textarea id="session-notes" placeholder="es. Focus su panca e tecnica squat" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400 h-16 resize-none"></textarea>
       </div>
+
       <div class="flex justify-end gap-2 mt-2">
         <button onclick="toggleModal('modal-session', false)" class="bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold">Annulla</button>
-        <button onclick="saveSession()" class="bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold">Conferma & Incrementa Sessione</button>
+        <button onclick="savePlannedSession()" class="bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold">Salva Sessione</button>
       </div>
     </div>
   </div>
@@ -172,6 +196,7 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let activeClient = null;
+    let availableExercises = [];
     let audioCtx = null;
     let timerInterval = null;
 
@@ -274,6 +299,7 @@
         const { data: exercises, error } = await supabaseClient.from('exercises').select('*');
         if (error) throw error;
 
+        availableExercises = exercises;
         container.innerHTML = '';
         exercises.forEach(ex => {
           let exName = 'Esercizio';
@@ -309,21 +335,107 @@
       }
     }
 
-    async function saveSession() {
+    function openSessionBuilder() {
+      const container = document.getElementById('session-exercises-selector');
+      container.innerHTML = '';
+
+      if (availableExercises.length === 0) {
+        container.innerHTML = '<p class="text-xs text-rose-400">Crea prima degli esercizi nella libreria.</p>';
+      } else {
+        availableExercises.forEach((ex, idx) => {
+          let exName = ex.name || 'Esercizio';
+          try {
+            const nameObj = typeof ex.name_json === 'string' ? JSON.parse(ex.name_json) : ex.name_json;
+            exName = nameObj?.it || exName;
+          } catch(e) {}
+
+          const div = document.createElement('div');
+          div.className = 'flex items-center justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-700/60';
+          div.innerHTML = `
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-200">
+              <input type="checkbox" class="ex-check accent-cyan-500 w-4 h-4" onchange="updateSessionTimerUI()">
+              <span class="ex-name">${exName}</span>
+            </label>
+            <div class="flex items-center gap-1">
+              <input type="number" value="15" min="5" step="5" class="ex-minutes w-16 bg-slate-800 border border-slate-700 text-center rounded-lg p-1 text-xs text-cyan-400 font-mono focus:outline-none focus:border-cyan-400" onchange="updateSessionTimerUI()">
+              <span class="text-[10px] text-slate-400">min</span>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+      }
+
+      updateSessionTimerUI();
+      toggleModal('modal-session', true);
+    }
+
+    function updateSessionTimerUI() {
+      const targetDuration = parseInt(document.getElementById('session-target-duration').value) || 60;
+      let totalAllocated = 0;
+
+      const rows = document.querySelectorAll('#session-exercises-selector > div');
+      rows.forEach(row => {
+        const check = row.querySelector('.ex-check');
+        const minInput = row.querySelector('.ex-minutes');
+        if (check && check.checked && minInput) {
+          totalAllocated += parseInt(minInput.value) || 0;
+        }
+      });
+
+      const display = document.getElementById('session-time-allocated');
+      const progressBar = document.getElementById('session-progress-bar');
+      
+      display.textContent = `${totalAllocated} / ${targetDuration} Minuti`;
+      
+      const pct = Math.min(100, Math.round((totalAllocated / targetDuration) * 100));
+      progressBar.style.width = `${pct}%`;
+
+      if (totalAllocated === targetDuration) {
+        progressBar.className = 'bg-emerald-500 h-2 transition-all';
+        display.className = 'font-bold text-emerald-400';
+      } else if (totalAllocated > targetDuration) {
+        progressBar.className = 'bg-rose-500 h-2 transition-all';
+        display.className = 'font-bold text-rose-400';
+      } else {
+        progressBar.className = 'bg-amber-500 h-2 transition-all';
+        display.className = 'font-bold text-amber-400';
+      }
+    }
+
+    async function savePlannedSession() {
       if (!activeClient) return;
 
-      const duration = parseInt(document.getElementById('session-duration').value) || 60;
+      const targetDuration = parseInt(document.getElementById('session-target-duration').value) || 60;
       const notes = document.getElementById('session-notes').value || '';
 
+      const plannedExercises = [];
+      const rows = document.querySelectorAll('#session-exercises-selector > div');
+      rows.forEach(row => {
+        const check = row.querySelector('.ex-check');
+        const nameSpan = row.querySelector('.ex-name');
+        const minInput = row.querySelector('.ex-minutes');
+        if (check && check.checked) {
+          plannedExercises.push({
+            name: nameSpan.textContent,
+            minutes: parseInt(minInput.value) || 0
+          });
+        }
+      });
+
       try {
-        // 1. Salva la nuova sessione nel DB
+        // 1. Salva la sessione time-based su Supabase
         const { error: sessionError } = await supabaseClient.from('sessions').insert([
-          { client_id: activeClient.id, duration_minutes: duration, notes: notes }
+          {
+            client_id: activeClient.id,
+            duration_minutes: targetDuration,
+            exercises_json: plannedExercises,
+            notes: notes
+          }
         ]);
 
         if (sessionError) throw sessionError;
 
-        // 2. Incrementa la sessione corrente del cliente
+        // 2. Incrementa il conteggio sessione per il cliente
         const nextSessionNum = (activeClient.current_session || 0) + 1;
         const { error: clientError } = await supabaseClient.from('clients')
           .update({ current_session: nextSessionNum })
@@ -338,10 +450,10 @@
         toggleModal('modal-session', false);
         loadSessionsHistory(activeClient.id);
 
-        alert(`Sessione registrata con successo! Passati a Sessione ${nextSessionNum}`);
+        alert(`Sessione di ${targetDuration} min registrata con successo! Passati a Sessione ${nextSessionNum}`);
 
       } catch (err) {
-        alert("Errore registrazione sessione: " + err.message);
+        alert("Errore salvataggio sessione: " + err.message);
       }
     }
 
@@ -362,9 +474,21 @@
 
         historyDiv.innerHTML = sessions.map(s => {
           const dateStr = new Date(s.session_date || s.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-          return `<div class="flex justify-between border-b border-slate-700/40 py-1">
-            <span>📅 ${dateStr} - ⏱️ <b>${s.duration_minutes} min</b></span>
-            <span class="text-slate-400 italic">${s.notes ? s.notes : ''}</span>
+          let exListStr = '';
+          
+          if (s.exercises_json && Array.isArray(s.exercises_json) && s.exercises_json.length > 0) {
+            exListStr = '<div class="text-[11px] text-slate-300 mt-1 pl-2 border-l-2 border-cyan-500/50">' +
+              s.exercises_json.map(e => `• ${e.name} (${e.minutes} min)`).join('<br>') +
+              '</div>';
+          }
+
+          return `<div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/50 flex flex-col gap-1">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-semibold text-cyan-400">📅 ${dateStr}</span>
+              <span class="bg-slate-700 text-emerald-400 font-mono px-2 py-0.5 rounded text-[10px]">⏱️ ${s.duration_minutes} min</span>
+            </div>
+            ${exListStr}
+            ${s.notes ? `<p class="text-[11px] text-slate-400 italic mt-0.5">${s.notes}</p>` : ''}
           </div>`;
         }).join('');
 
@@ -404,7 +528,6 @@
         }
 
       } catch (err) {
-        console.error("Errore salvataggio esercizio:", err);
         alert("Errore salvataggio esercizio: " + (err.message || JSON.stringify(err)));
       }
     }
