@@ -267,19 +267,37 @@
     }
 
     async function saveNewExercise() {
-      const name = document.getElementById('new-ex-name').value;
-      const group = document.getElementById('new-ex-group').value;
-      const sets = parseInt(document.getElementById('new-ex-sets').value) || 3;
-      const reps = document.getElementById('new-ex-reps').value || '10';
+  const name = document.getElementById('new-ex-name').value;
+  const group = document.getElementById('new-ex-group').value;
+  const sets = parseInt(document.getElementById('new-ex-sets').value) || 3;
+  const reps = document.getElementById('new-ex-reps').value || '10';
 
-      if (!name) return alert("Inserisci il nome dell'esercizio");
+  if (!name) return alert("Inserisci il nome dell'esercizio");
 
-      const { error } = await supabaseClient.from('exercises').insert([
-        {
-          name_json: { it: name },
-          group_json: { it: group },
-          sets: sets,
-          reps: reps
+  try {
+    const { error } = await supabaseClient.from('exercises').insert([
+      {
+        name_json: { it: name },
+        group_json: { it: group },
+        sets: sets,
+        reps: reps
+      }
+    ]);
+
+    if (error) throw error;
+
+    // Pulisce i campi dell'input
+    document.getElementById('new-ex-name').value = '';
+    document.getElementById('new-ex-group').value = '';
+    document.getElementById('new-ex-sets').value = '';
+    document.getElementById('new-ex-reps').value = '';
+
+    toggleModal('modal-exercise', false);
+    if (activeClient) loadClientWorkout(activeClient);
+
+  } catch (err) {
+    console.error("Errore salvataggio esercizio:", err);
+    alert("Errore salvataggio esercizio: " + (err.message || JSON.stringify(err)));
         }
       ]);
 
