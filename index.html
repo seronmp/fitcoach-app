@@ -59,12 +59,13 @@
       </div>
     </div>
   </footer>
-
-  <script>
-    // 1. Configurazione Supabase
+<script>
+    // 1. Configurazione Supabase (rinominato in supabaseClient per evitare conflitti)
     const SUPABASE_URL = "https://iqktzacvuhspdjdcwcnx.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxa3R6YWN2dWhzcGRqZGN3Y254Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzgwMTcsImV4cCI6MjA1NjzgNDAxN30.9-Kk_9kK3jW0l8S_mY7LdZ9Y_S2wL4X3K9Q8P1O0R0M";
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // Usiamo supabaseClient anziché 'supabase'
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // 2. Stato Audio e Timer
     let audioCtx = null;
@@ -97,11 +98,9 @@
     }
 
     function notifyRestFinished() {
-      // Due bip acustici
       playBeep(800, 0.15);
       setTimeout(() => playBeep(1200, 0.25), 200);
 
-      // Feedback aptico (vibrazione)
       if ('vibrate' in navigator) {
         navigator.vibrate([200, 100, 200]);
       }
@@ -140,8 +139,8 @@
     // 3. Caricamento Dati e Render
     async function initApp() {
       try {
-        // Carica dati cliente (ID = 1)
-        const { data: client, error: clientError } = await supabase
+        // Usa supabaseClient
+        const { data: client, error: clientError } = await supabaseClient
           .from('clients')
           .select('*')
           .eq('id', 1)
@@ -149,19 +148,16 @@
 
         if (clientError) throw clientError;
 
-        // Carica esercizi
-        const { data: exercises, error: exError } = await supabase
+        const { data: exercises, error: exError } = await supabaseClient
           .from('exercises')
           .select('*');
 
         if (exError) throw exError;
 
-        // Popola Cliente
         document.getElementById('client-name').textContent = client.name;
         document.getElementById('client-goal').textContent = client.goal || '';
         document.getElementById('session-count').textContent = `Sessione ${client.current_session}/${client.total_sessions}`;
 
-        // Popola Esercizi
         const container = document.getElementById('exercises-list');
         container.innerHTML = '';
 
@@ -189,7 +185,6 @@
           container.appendChild(card);
         });
 
-        // Mostra interfaccia
         document.getElementById('loading-state').classList.add('hidden');
         document.getElementById('client-content').classList.remove('hidden');
         document.getElementById('exercises-section').classList.remove('hidden');
@@ -209,7 +204,7 @@
         btn.disabled = true;
         btn.textContent = 'Salvataggio...';
 
-        const { error } = await supabase.from('workout_logs').insert([
+        const { error } = await supabaseClient.from('workout_logs').insert([
           { client_id: 1, exercise_name: exName, completed_sets: 1 }
         ]);
 
@@ -230,8 +225,10 @@
       }
     }
 
-    // Inizializzazione al caricamento pagina
     document.addEventListener('DOMContentLoaded', initApp);
+    document.addEventListener('click', initAudio, { once: true });
+  </script>
+  document.addEventListener('DOMContentLoaded', initApp);
     document.addEventListener('click', initAudio, { once: true });
   </script>
 </body>
