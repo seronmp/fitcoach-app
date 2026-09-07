@@ -1,4 +1,97 @@
-<script>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitCoach 1-on-1</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- Header -->
+  <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold tracking-wide text-cyan-400">FITCOACH 1-ON-1</h1>
+    <button id="logout-btn" onclick="logoutTrainer()" class="hidden text-xs bg-slate-700 hover:bg-slate-600 text-rose-400 px-3 py-1.5 rounded-lg border border-slate-600">
+      Esci (PIN)
+    </button>
+  </header>
+
+  <!-- Container Principale -->
+  <main class="flex-1 max-w-xl w-full mx-auto p-4 flex flex-col gap-6">
+
+    <!-- VISTA 1: LOGIN TRAINER -->
+    <section id="login-section" class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl my-auto text-center">
+      <h2 class="text-2xl font-bold text-slate-100 mb-2">Area Trainer</h2>
+      <p class="text-sm text-slate-400 mb-6">Inserisci il PIN per accedere alla gestione clienti</p>
+      
+      <div class="flex justify-center gap-3 mb-6">
+        <input type="password" maxlength="4" id="pin-input" placeholder="****" class="w-32 text-center text-2xl font-mono tracking-widest bg-slate-900 border border-slate-600 rounded-xl p-3 text-cyan-400 focus:outline-none focus:border-cyan-400">
+      </div>
+      
+      <button onclick="checkPin()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-bold py-3 rounded-xl text-base transition">
+        Accedi
+      </button>
+      <p id="pin-error" class="text-xs text-rose-400 mt-3 hidden">PIN errato! Riprova.</p>
+    </section>
+
+    <!-- VISTA 2: SELETTORE CLIENTE (DASHBOARD) -->
+    <section id="dashboard-section" class="hidden flex flex-col gap-4">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-lg font-bold text-slate-200">Seleziona Cliente</h3>
+      </div>
+      <div id="clients-list" class="flex flex-col gap-3">
+        <!-- Lista popolata via JS -->
+      </div>
+    </section>
+
+    <!-- VISTA 3: SCHEDA ALLENAMENTO -->
+    <section id="workout-section" class="hidden flex flex-col gap-6">
+      
+      <!-- Pulsante Torna ai Clienti -->
+      <button onclick="showDashboard()" class="text-xs text-cyan-400 font-medium self-start flex items-center gap-1 hover:underline">
+        ← Torna alla lista clienti
+      </button>
+
+      <!-- Card Cliente Selezionato -->
+      <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl">
+        <div class="flex justify-between items-start border-b border-slate-700 pb-3 mb-3">
+          <div>
+            <h2 id="client-name" class="text-2xl font-bold text-slate-100">-</h2>
+            <p id="client-goal" class="text-sm text-cyan-400 font-medium">-</p>
+          </div>
+          <span id="session-count" class="bg-slate-700 text-xs px-3 py-1 rounded-full font-mono text-slate-300">
+            Sessione -/-
+          </span>
+        </div>
+      </div>
+
+      <!-- Esercizi -->
+      <div class="flex flex-col gap-4">
+        <h3 class="text-lg font-bold text-slate-300">Scheda Allenamento</h3>
+        <div id="exercises-list" class="flex flex-col gap-4"></div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Timer Bar Fissa in Basso -->
+  <footer id="timer-footer" class="hidden sticky bottom-0 bg-slate-800 border-t border-slate-700 p-4 shadow-2xl">
+    <div class="max-w-xl mx-auto flex justify-between items-center gap-2">
+      <div class="flex flex-col">
+        <span class="text-xs text-slate-400 uppercase tracking-wider">Recupero</span>
+        <span id="timer-display" class="text-2xl font-mono font-bold text-amber-400">00:00</span>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="startRest(60)" class="bg-slate-700 hover:bg-slate-600 text-cyan-400 font-bold px-4 py-2 rounded-xl text-sm border border-slate-600 transition">60s</button>
+        <button onclick="startRest(90)" class="bg-slate-700 hover:bg-slate-600 text-cyan-400 font-bold px-4 py-2 rounded-xl text-sm border border-slate-600 transition">90s</button>
+        <button onclick="stopTimer()" class="bg-rose-900/50 hover:bg-rose-800 text-rose-300 px-3 py-2 rounded-xl text-sm border border-rose-700">Stop</button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
     // Configurazione
     const TRAINER_PIN = "1234"; // PIN di accesso
     const SUPABASE_URL = "https://iqktzacvuhspdjdcwcnx.supabase.co";
@@ -41,7 +134,6 @@
       container.innerHTML = '<p class="text-sm text-slate-400 text-center py-4">Caricamento clienti...</p>';
 
       try {
-        // Query diretta senza ordinamento
         const { data: clients, error } = await supabaseClient.from('clients').select('*');
         if (error) throw error;
 
@@ -200,3 +292,5 @@
 
     document.addEventListener('click', initAudio, { once: true });
   </script>
+</body>
+</html>
