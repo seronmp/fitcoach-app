@@ -275,7 +275,7 @@
   if (!name) return alert("Inserisci il nome dell'esercizio");
 
   try {
-    const { error } = await supabaseClient.from('exercises').insert([
+   const { error } = await supabaseClient.from('exercises').insert([
       {
         name_json: { it: name },
         group_json: { it: group },
