@@ -1,19 +1,47 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FitCoach 1-on-1</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-modal {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+    }
+    .btn-press {
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-press:active {
+      transform: scale(0.96);
+    }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-slate-900">
 
   <!-- Header -->
-  <header class="bg-slate-800 border-b border-slate-700 p-4 flex justify-between items-center">
-    <h1 class="text-xl font-bold tracking-wide text-cyan-400">FITCOACH 1-ON-1</h1>
-    <button id="logout-btn" onclick="logoutTrainer()" class="hidden text-xs bg-slate-700 hover:bg-slate-600 text-rose-400 px-3 py-1.5 rounded-lg border border-slate-600">
-      Esci (PIN)
+  <header class="sticky top-0 z-40 glass-card border-b border-slate-800/80 px-5 py-4 flex justify-between items-center shadow-lg">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center font-extrabold text-slate-950 text-base shadow-lg shadow-cyan-500/20">
+        FC
+      </div>
+      <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-slate-100 via-slate-200 to-slate-400 bg-clip-text text-transparent">
+        FitCoach <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 ml-1">PRO</span>
+      </h1>
+    </div>
+    <button id="logout-btn" onclick="logoutTrainer()" class="hidden text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-rose-400 px-3.5 py-2 rounded-xl border border-slate-700 transition btn-press">
+      Esci
     </button>
   </header>
 
@@ -21,72 +49,82 @@
   <main class="flex-1 max-w-xl w-full mx-auto p-4 flex flex-col gap-6">
 
     <!-- VISTA 1: LOGIN TRAINER -->
-    <section id="login-section" class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl my-auto text-center">
-      <h2 class="text-2xl font-bold text-slate-100 mb-2">Area Trainer</h2>
-      <p class="text-sm text-slate-400 mb-6">Inserisci il PIN per accedere alla gestione clienti</p>
-      
-      <div class="flex justify-center gap-3 mb-6">
-        <input type="password" maxlength="4" id="pin-input" placeholder="****" class="w-32 text-center text-2xl font-mono tracking-widest bg-slate-900 border border-slate-600 rounded-xl p-3 text-cyan-400 focus:outline-none focus:border-cyan-400">
+    <section id="login-section" class="glass-card p-8 rounded-3xl shadow-2xl my-auto text-center flex flex-col gap-6 border border-slate-800">
+      <div class="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 mx-auto flex items-center justify-center text-cyan-400">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-slate-100">Area Personal Trainer</h2>
+        <p class="text-xs text-slate-400 mt-1">Inserisci il PIN per accedere alla tua dashboard</p>
       </div>
       
-      <button onclick="checkPin()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-bold py-3 rounded-xl text-base transition">
+      <div class="flex justify-center">
+        <input type="password" maxlength="4" id="pin-input" placeholder="••••" class="w-40 text-center text-3xl font-mono tracking-widest bg-slate-900/90 border border-slate-700/80 rounded-2xl py-3.5 text-cyan-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition shadow-inner">
+      </div>
+      
+      <button onclick="checkPin()" class="w-full bg-gradient-to-r from-cyan-500 to-teal-400 hover:from-cyan-400 hover:to-teal-300 text-slate-950 font-bold py-3.5 rounded-2xl text-sm transition shadow-lg shadow-cyan-500/20 btn-press">
         Accedi
       </button>
-      <p id="pin-error" class="text-xs text-rose-400 mt-3 hidden">PIN errato! Riprova.</p>
+      <p id="pin-error" class="text-xs text-rose-400 font-medium hidden">PIN errato! Riprova.</p>
     </section>
 
-    <!-- VISTA 2: SELETTORE CLIENTE (DASHBOARD) -->
-    <section id="dashboard-section" class="hidden flex flex-col gap-4">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="text-lg font-bold text-slate-200">Seleziona Cliente</h3>
-        <button onclick="toggleModal('modal-client', true)" class="bg-cyan-600 hover:bg-cyan-500 text-slate-900 text-xs font-bold px-3 py-2 rounded-xl transition">
-          + Nuovo Cliente
+    <!-- VISTA 2: DASHBOARD CLIENTE -->
+    <section id="dashboard-section" class="hidden flex flex-col gap-5">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 class="text-xl font-bold text-slate-100">I tuoi Clienti</h3>
+          <p class="text-xs text-slate-400">Seleziona un profilo per gestire le sessioni</p>
+        </div>
+        <button onclick="toggleModal('modal-client', true)" class="bg-gradient-to-r from-cyan-500 to-teal-400 text-slate-950 text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-md shadow-cyan-500/10 btn-press flex items-center gap-1.5">
+          <span>+</span> Nuovo Cliente
         </button>
       </div>
       <div id="clients-list" class="flex flex-col gap-3"></div>
     </section>
 
-    <!-- VISTA 3: SCHEDA ALLENAMENTO E SESSIONI -->
+    <!-- VISTA 3: SCHEDA ALLENAMENTO -->
     <section id="workout-section" class="hidden flex flex-col gap-6">
       
-      <button onclick="showDashboard()" class="text-xs text-cyan-400 font-medium self-start flex items-center gap-1 hover:underline">
-        ← Torna alla lista clienti
+      <button onclick="showDashboard()" class="text-xs text-slate-400 hover:text-cyan-400 font-medium self-start flex items-center gap-1.5 transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        Torna alla lista clienti
       </button>
 
       <!-- Card Cliente Selezionato -->
-      <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-xl flex flex-col gap-4">
-        <div class="flex justify-between items-start border-b border-slate-700 pb-3">
+      <div class="glass-card p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col gap-5 relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="flex justify-between items-start border-b border-slate-800 pb-4">
           <div>
-            <h2 id="client-name" class="text-2xl font-bold text-slate-100">-</h2>
-            <p id="client-goal" class="text-sm text-cyan-400 font-medium">-</p>
+            <h2 id="client-name" class="text-2xl font-extrabold text-slate-100 tracking-tight">-</h2>
+            <p id="client-goal" class="text-xs font-semibold text-cyan-400 mt-0.5 uppercase tracking-wider">-</p>
           </div>
-          <span id="session-count" class="bg-slate-700 text-xs px-3 py-1 rounded-full font-mono text-slate-300">
+          <span id="session-count" class="bg-slate-800/80 border border-slate-700 text-xs px-3.5 py-1.5 rounded-full font-mono text-slate-300 shadow-inner">
             Sessione -/-
           </span>
         </div>
 
-        <!-- Pulsante per Programmare/Creare Nuova Sessione -->
-        <button onclick="openSessionBuilder()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold py-3 rounded-xl text-sm transition flex justify-center items-center gap-2">
-          📅 Programma / Pianifica Sessione
+        <button onclick="openSessionBuilder()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-bold py-3.5 rounded-2xl text-sm transition shadow-lg shadow-emerald-500/20 btn-press flex justify-center items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          Programma / Pianifica Sessione
         </button>
       </div>
 
-      <!-- Banner Sessione Live In Corso (visibile solo se una sessione è attiva) -->
-      <div id="live-session-banner" class="hidden bg-gradient-to-r from-cyan-900/80 to-slate-800 border border-cyan-500/50 p-4 rounded-xl flex flex-col gap-2">
+      <!-- Live Session Banner -->
+      <div id="live-session-banner" class="hidden glass-card border-cyan-500/40 p-5 rounded-2xl flex flex-col gap-3 relative overflow-hidden shadow-xl shadow-cyan-950/50">
         <div class="flex justify-between items-center">
-          <span class="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span> Sessione In Corso (LIVE)
+          <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span> Sessione In Corso
           </span>
-          <span id="live-session-timer" class="text-2xl font-mono font-bold text-cyan-400">60:00</span>
+          <span id="live-session-timer" class="text-3xl font-mono font-extrabold text-cyan-400 tracking-tight">60:00</span>
         </div>
-        <button onclick="completeLiveSession()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold py-2 rounded-lg mt-1">
+        <button onclick="completeLiveSession()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold py-2.5 rounded-xl transition shadow-md shadow-emerald-500/20 btn-press">
           ✓ Completa & Salva Sessione
         </button>
       </div>
 
-      <!-- Programmazione / Storico Sessioni -->
-      <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60 flex flex-col gap-3">
-        <h3 class="text-sm font-bold text-slate-300">Sessioni Programmate e Storico</h3>
+      <!-- Storico Sessioni -->
+      <div class="glass-card p-5 rounded-2xl border border-slate-800 flex flex-col gap-3">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Sessioni Programmate & Storico</h3>
         <div id="sessions-history" class="text-xs text-slate-400 flex flex-col gap-2">
           Nessuna sessione trovata.
         </div>
@@ -95,53 +133,53 @@
       <!-- Esercizi Disponibili -->
       <div class="flex flex-col gap-4">
         <div class="flex justify-between items-center">
-          <h3 class="text-lg font-bold text-slate-300">Libreria Esercizi</h3>
-          <button onclick="toggleModal('modal-exercise', true)" class="bg-slate-700 hover:bg-slate-600 text-cyan-400 border border-slate-600 text-xs font-bold px-3 py-1.5 rounded-xl transition">
+          <h3 class="text-lg font-bold text-slate-200">Libreria Esercizi</h3>
+          <button onclick="toggleModal('modal-exercise', true)" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 text-xs font-bold px-3.5 py-2 rounded-xl transition btn-press">
             + Nuovo Esercizio
           </button>
         </div>
-        <div id="exercises-list" class="flex flex-col gap-4"></div>
+        <div id="exercises-list" class="flex flex-col gap-3"></div>
       </div>
 
     </section>
 
   </main>
 
+  <!-- MODALI CON NUOVO DESIGN VETRO -->
+  
   <!-- MODALE: NUOVO CLIENTE -->
-  <div id="modal-client" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 hidden z-50">
-    <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-sm w-full flex flex-col gap-4">
+  <div id="modal-client" class="fixed inset-0 glass-modal flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl max-w-sm w-full flex flex-col gap-4 shadow-2xl">
       <h3 class="text-lg font-bold text-slate-100">Nuovo Cliente</h3>
-      <input type="text" id="new-client-name" placeholder="Nome e Cognome" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
-      <input type="text" id="new-client-goal" placeholder="Obiettivo (es. Ipertrofia)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
-      <input type="number" id="new-client-sessions" placeholder="Sessioni Totali (es. 10)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+      <input type="text" id="new-client-name" placeholder="Nome e Cognome" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+      <input type="text" id="new-client-goal" placeholder="Obiettivo (es. Ipertrofia)" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+      <input type="number" id="new-client-sessions" placeholder="Sessioni Totali (es. 10)" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
       <div class="flex justify-end gap-2 mt-2">
-        <button onclick="toggleModal('modal-client', false)" class="bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold">Annulla</button>
-        <button onclick="saveNewClient()" class="bg-cyan-600 text-slate-900 px-4 py-2 rounded-xl text-xs font-bold">Salva</button>
+        <button onclick="toggleModal('modal-client', false)" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold btn-press">Annulla</button>
+        <button onclick="saveNewClient()" class="bg-cyan-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold btn-press">Salva</button>
       </div>
     </div>
   </div>
 
-  <!-- MODALE: PROGRAMMA / CREA SESSIONE -->
-  <div id="modal-session" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 hidden z-50 overflow-y-auto">
-    <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-md w-full flex flex-col gap-4 my-auto max-h-[90vh]">
+  <!-- MODALE: PROGRAMMA SESSIONE -->
+  <div id="modal-session" class="fixed inset-0 glass-modal flex items-center justify-center p-4 hidden z-50 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl max-w-md w-full flex flex-col gap-4 my-auto max-h-[90vh] shadow-2xl">
       <h3 class="text-lg font-bold text-slate-100">Programma Sessione</h3>
       
-      <!-- Programmazione Data e Ora -->
       <div class="flex gap-2">
         <div class="w-1/2">
           <label class="text-xs text-slate-400 mb-1 block">Data:</label>
-          <input type="date" id="session-date" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
+          <input type="date" id="session-date" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
         </div>
         <div class="w-1/2">
           <label class="text-xs text-slate-400 mb-1 block">Ora Inizio:</label>
-          <input type="time" id="session-time" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
+          <input type="time" id="session-time" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
         </div>
       </div>
 
-      <!-- Selezione Durata Totale -->
       <div>
         <label class="text-xs text-slate-400 mb-1 block">Durata Totale Obiettivo:</label>
-        <select id="session-target-duration" onchange="updateSessionTimerUI()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
+        <select id="session-target-duration" onchange="updateSessionTimerUI()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
           <option value="60" selected>60 Minuti (1 Ora)</option>
           <option value="45">45 Minuti</option>
           <option value="30">30 Minuti</option>
@@ -150,18 +188,16 @@
         </select>
       </div>
 
-      <!-- Barra del tempo allocato -->
-      <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex flex-col gap-1">
+      <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 flex flex-col gap-1.5">
         <div class="flex justify-between text-xs">
           <span class="text-slate-400">Tempo Assegnato:</span>
           <span id="session-time-allocated" class="font-bold text-emerald-400">0 / 60 Minuti</span>
         </div>
-        <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
-          <div id="session-progress-bar" class="bg-emerald-500 h-2 w-0 transition-all"></div>
+        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+          <div id="session-progress-bar" class="bg-emerald-500 h-2 w-0 transition-all duration-300"></div>
         </div>
       </div>
 
-      <!-- Selettore Esercizi -->
       <div class="flex flex-col gap-2">
         <label class="text-xs text-slate-400">Seleziona Esercizi e distribuisci i minuti:</label>
         <div id="session-exercises-selector" class="flex flex-col gap-2 max-h-40 overflow-y-auto pr-1">
@@ -169,47 +205,46 @@
         </div>
       </div>
 
-      <!-- Note -->
       <div>
         <label class="text-xs text-slate-400 mb-1 block">Note (opzionale):</label>
-        <textarea id="session-notes" placeholder="es. Focus su panca e tecnica squat" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-400 h-14 resize-none"></textarea>
+        <textarea id="session-notes" placeholder="es. Focus su panca e tecnica squat" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400 h-14 resize-none"></textarea>
       </div>
 
       <div class="flex justify-end gap-2 mt-2">
-        <button onclick="toggleModal('modal-session', false)" class="bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold">Annulla</button>
-        <button onclick="savePlannedSession()" class="bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold">Salva Programmazione</button>
+        <button onclick="toggleModal('modal-session', false)" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold btn-press">Annulla</button>
+        <button onclick="savePlannedSession()" class="bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold btn-press">Salva Programmazione</button>
       </div>
     </div>
   </div>
 
   <!-- MODALE: NUOVO ESERCIZIO -->
-  <div id="modal-exercise" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 hidden z-50">
-    <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-sm w-full flex flex-col gap-4">
+  <div id="modal-exercise" class="fixed inset-0 glass-modal flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl max-w-sm w-full flex flex-col gap-4 shadow-2xl">
       <h3 class="text-lg font-bold text-slate-100">Nuovo Esercizio</h3>
-      <input type="text" id="new-ex-name" placeholder="Nome Esercizio" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
-      <input type="text" id="new-ex-group" placeholder="Gruppo Muscolare (es. Petto)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+      <input type="text" id="new-ex-name" placeholder="Nome Esercizio" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+      <input type="text" id="new-ex-group" placeholder="Gruppo Muscolare (es. Petto)" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
       <div class="flex gap-2">
-        <input type="number" id="new-ex-sets" placeholder="Serie (es. 4)" class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
-        <input type="text" id="new-ex-reps" placeholder="Reps (es. 8-10)" class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+        <input type="number" id="new-ex-sets" placeholder="Serie (es. 4)" class="w-1/2 bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+        <input type="text" id="new-ex-reps" placeholder="Reps (es. 8-10)" class="w-1/2 bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
       </div>
       <div class="flex justify-end gap-2 mt-2">
-        <button onclick="toggleModal('modal-exercise', false)" class="bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold">Annulla</button>
-        <button onclick="saveNewExercise()" class="bg-cyan-600 text-slate-900 px-4 py-2 rounded-xl text-xs font-bold">Salva</button>
+        <button onclick="toggleModal('modal-exercise', false)" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold btn-press">Annulla</button>
+        <button onclick="saveNewExercise()" class="bg-cyan-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold btn-press">Salva</button>
       </div>
     </div>
   </div>
 
-  <!-- Timer Bar Fissa in Basso per i Recuperi Tra le Serie -->
-  <footer id="timer-footer" class="hidden sticky bottom-0 bg-slate-800 border-t border-slate-700 p-4 shadow-2xl">
+  <!-- Timer Bar Fissa in Basso -->
+  <footer id="timer-footer" class="hidden sticky bottom-0 z-30 glass-card border-t border-slate-800 p-4 shadow-2xl">
     <div class="max-w-xl mx-auto flex justify-between items-center gap-2">
       <div class="flex flex-col">
-        <span class="text-xs text-slate-400 uppercase tracking-wider">Recupero Serie</span>
-        <span id="timer-display" class="text-2xl font-mono font-bold text-amber-400">00:00</span>
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recupero Serie</span>
+        <span id="timer-display" class="text-2xl font-mono font-extrabold text-amber-400 tracking-tight">00:00</span>
       </div>
       <div class="flex gap-2">
-        <button onclick="startRest(60)" class="bg-slate-700 hover:bg-slate-600 text-cyan-400 font-bold px-4 py-2 rounded-xl text-sm border border-slate-600 transition">60s</button>
-        <button onclick="startRest(90)" class="bg-slate-700 hover:bg-slate-600 text-cyan-400 font-bold px-4 py-2 rounded-xl text-sm border border-slate-600 transition">90s</button>
-        <button onclick="stopTimer()" class="bg-rose-900/50 hover:bg-rose-800 text-rose-300 px-3 py-2 rounded-xl text-sm border border-rose-700">Stop</button>
+        <button onclick="startRest(60)" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold px-4 py-2 rounded-xl text-xs border border-slate-700 transition btn-press">60s</button>
+        <button onclick="startRest(90)" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold px-4 py-2 rounded-xl text-xs border border-slate-700 transition btn-press">90s</button>
+        <button onclick="stopTimer()" class="bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 px-3 py-2 rounded-xl text-xs border border-rose-800/50 btn-press">Stop</button>
       </div>
     </div>
   </footer>
@@ -268,15 +303,15 @@
         container.innerHTML = '';
         clients.forEach(client => {
           const card = document.createElement('div');
-          card.className = 'bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between items-center cursor-pointer hover:border-cyan-500 transition';
+          card.className = 'glass-card p-4 rounded-2xl border border-slate-800 flex justify-between items-center cursor-pointer hover:border-cyan-500/50 transition btn-press shadow-md';
           card.onclick = () => loadClientWorkout(client);
           card.innerHTML = `
             <div>
-              <h4 class="font-bold text-slate-100 text-lg">${client.name || 'Senza Nome'}</h4>
+              <h4 class="font-bold text-slate-100 text-base">${client.name || 'Senza Nome'}</h4>
               <p class="text-xs text-cyan-400 font-medium">${client.goal || 'Nessun obiettivo'}</p>
             </div>
-            <span class="text-xs bg-slate-700 text-slate-300 font-mono px-3 py-1 rounded-full">
-              Sess. ${client.current_session || 0}/${client.total_sessions || 0}
+            <span class="text-xs bg-slate-800 border border-slate-700 text-slate-300 font-mono px-3 py-1 rounded-full">
+              ${client.current_session || 0}/${client.total_sessions || 0}
             </span>
           `;
           container.appendChild(card);
@@ -343,16 +378,16 @@
           }
 
           const card = document.createElement('div');
-          card.className = 'bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col gap-2';
+          card.className = 'glass-card p-4 rounded-2xl border border-slate-800 flex flex-col gap-2 shadow-md';
           card.innerHTML = `
             <div class="flex justify-between items-center">
               <div>
-                <span class="text-xs text-cyan-400 uppercase font-semibold">${exGroup}</span>
-                <h4 class="text-lg font-bold text-slate-100">${exName}</h4>
+                <span class="text-[10px] font-extrabold text-cyan-400 uppercase tracking-wider">${exGroup}</span>
+                <h4 class="text-base font-bold text-slate-100">${exName}</h4>
               </div>
-              <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300 font-mono">${ex.sets || 3}x${ex.reps || '10'}</span>
+              <span class="text-xs bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-lg text-slate-300 font-mono">${ex.sets || 3}x${ex.reps || '10'}</span>
             </div>
-            <button onclick="logSet('${exName.replace(/'/g, "\\'")}', this)" class="mt-2 w-full bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-bold py-2 rounded-lg text-sm transition">
+            <button onclick="logSet('${exName.replace(/'/g, "\\'")}', this)" class="mt-2 w-full bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 font-bold py-2 rounded-xl text-xs transition btn-press">
               Completa Serie & Salva su DB
             </button>
           `;
@@ -364,7 +399,6 @@
     }
 
     function openSessionBuilder() {
-      // Imposta data e ora correnti come default
       const now = new Date();
       document.getElementById('session-date').value = now.toISOString().split('T')[0];
       document.getElementById('session-time').value = now.toTimeString().substring(0,5);
@@ -383,15 +417,15 @@
           } catch(e) {}
 
           const div = document.createElement('div');
-          div.className = 'flex items-center justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-700/60';
+          div.className = 'flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800';
           div.innerHTML = `
             <label class="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-200">
-              <input type="checkbox" class="ex-check accent-cyan-500 w-4 h-4" onchange="updateSessionTimerUI()">
+              <input type="checkbox" class="ex-check accent-cyan-500 w-4 h-4 rounded" onchange="updateSessionTimerUI()">
               <span class="ex-name">${exName}</span>
             </label>
             <div class="flex items-center gap-1">
-              <input type="number" value="15" min="5" step="5" class="ex-minutes w-14 bg-slate-800 border border-slate-700 text-center rounded-lg p-1 text-xs text-cyan-400 font-mono focus:outline-none focus:border-cyan-400" onchange="updateSessionTimerUI()">
-              <span class="text-[10px] text-slate-400">min</span>
+              <input type="number" value="15" min="5" step="5" class="ex-minutes w-14 bg-slate-900 border border-slate-800 text-center rounded-lg p-1 text-xs text-cyan-400 font-mono focus:outline-none focus:border-cyan-400" onchange="updateSessionTimerUI()">
+              <span class="text-[10px] text-slate-500">min</span>
             </div>
           `;
           container.appendChild(div);
@@ -424,13 +458,13 @@
       progressBar.style.width = `${pct}%`;
 
       if (totalAllocated === targetDuration) {
-        progressBar.className = 'bg-emerald-500 h-2 transition-all';
+        progressBar.className = 'bg-emerald-400 h-2 transition-all';
         display.className = 'font-bold text-emerald-400';
       } else if (totalAllocated > targetDuration) {
         progressBar.className = 'bg-rose-500 h-2 transition-all';
         display.className = 'font-bold text-rose-400';
       } else {
-        progressBar.className = 'bg-amber-500 h-2 transition-all';
+        progressBar.className = 'bg-amber-400 h-2 transition-all';
         display.className = 'font-bold text-amber-400';
       }
     }
@@ -475,7 +509,7 @@
 
         toggleModal('modal-session', false);
         loadSessionsHistory(activeClient.id);
-        alert(`Sessione programmata con successo per ${dateVal} alle ${timeVal}`);
+        alert(`Sessione programmata per ${dateVal} alle ${timeVal}`);
 
       } catch (err) {
         alert("Errore salvataggio sessione: " + err.message);
@@ -486,7 +520,6 @@
       activeSessionId = sessionId;
       liveTimeRemaining = durationMinutes * 60;
 
-      // Aggiorna stato in DB
       await supabaseClient.from('sessions').update({ status: 'in_progress' }).eq('id', sessionId);
 
       document.getElementById('live-session-banner').classList.remove('hidden');
@@ -518,10 +551,8 @@
       clearInterval(sessionTimerInterval);
       document.getElementById('live-session-banner').classList.add('hidden');
 
-      // 1. Marca la sessione come completata
       await supabaseClient.from('sessions').update({ status: 'completed' }).eq('id', activeSessionId);
 
-      // 2. Incrementa conteggio sessioni cliente
       const nextSessionNum = (activeClient.current_session || 0) + 1;
       await supabaseClient.from('clients').update({ current_session: nextSessionNum }).eq('id', activeClient.id);
 
@@ -530,7 +561,7 @@
 
       activeSessionId = null;
       loadSessionsHistory(activeClient.id);
-      alert("✓ Sessione completata e registrata nello storico!");
+      alert("✓ Sessione completata e registrata!");
     }
 
     async function loadSessionsHistory(clientId) {
@@ -550,12 +581,12 @@
 
         historyDiv.innerHTML = sessions.map(s => {
           const schedDate = s.scheduled_at ? new Date(s.scheduled_at) : new Date(s.created_at);
-          const dateStr = schedDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
+          const dateStr = schedDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
           const timeStr = schedDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 
           let exListStr = '';
           if (s.exercises_json && Array.isArray(s.exercises_json) && s.exercises_json.length > 0) {
-            exListStr = '<div class="text-[11px] text-slate-300 mt-1 pl-2 border-l-2 border-cyan-500/50">' +
+            exListStr = '<div class="text-[11px] text-slate-300 mt-1 pl-2 border-l-2 border-cyan-500/40">' +
               s.exercises_json.map(e => `• ${e.name} (${e.minutes} min)`).join('<br>') +
               '</div>';
           }
@@ -564,22 +595,22 @@
           let statusBadge = '';
 
           if (s.status === 'scheduled') {
-            statusBadge = `<span class="bg-amber-900/60 text-amber-300 px-2 py-0.5 rounded text-[10px] border border-amber-700">Programmata</span>`;
-            actionBtn = `<button onclick="startLiveSession(${s.id}, ${s.duration_minutes})" class="mt-2 w-full bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-bold py-1.5 rounded-lg text-xs transition">
+            statusBadge = `<span class="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full text-[10px] font-bold border border-amber-500/20">Programmata</span>`;
+            actionBtn = `<button onclick="startLiveSession(${s.id}, ${s.duration_minutes})" class="mt-2 w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-1.5 rounded-xl text-xs transition btn-press shadow-md shadow-cyan-500/10">
               ▶ Avvia Ora Sessione (${s.duration_minutes} min)
             </button>`;
           } else if (s.status === 'in_progress') {
-            statusBadge = `<span class="bg-cyan-900/80 text-cyan-300 px-2 py-0.5 rounded text-[10px] border border-cyan-500 animate-pulse">In Corso</span>`;
+            statusBadge = `<span class="bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-full text-[10px] font-bold border border-cyan-500/20 animate-pulse">In Corso</span>`;
           } else {
-            statusBadge = `<span class="bg-emerald-900/60 text-emerald-300 px-2 py-0.5 rounded text-[10px] border border-emerald-700">Completata</span>`;
+            statusBadge = `<span class="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-500/20">Completata</span>`;
           }
 
-          return `<div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/50 flex flex-col gap-1">
+          return `<div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800 flex flex-col gap-1">
             <div class="flex justify-between items-center text-xs">
-              <span class="font-semibold text-cyan-400">📅 ${dateStr} ore ${timeStr}</span>
-              <div class="flex gap-1 items-center">
+              <span class="font-bold text-slate-200">${dateStr} ore ${timeStr}</span>
+              <div class="flex gap-1.5 items-center">
                 ${statusBadge}
-                <span class="bg-slate-700 text-slate-300 font-mono px-2 py-0.5 rounded text-[10px]">⏱️ ${s.duration_minutes} min</span>
+                <span class="bg-slate-800 text-slate-300 font-mono px-2 py-0.5 rounded-lg text-[10px]">${s.duration_minutes} min</span>
               </div>
             </div>
             ${exListStr}
@@ -641,15 +672,15 @@
         if (error) throw error;
 
         btn.textContent = '✓ Salvato';
-        btn.classList.replace('bg-cyan-600', 'bg-emerald-600');
+        btn.classList.replace('text-cyan-400', 'text-emerald-400');
         setTimeout(() => {
           btn.textContent = 'Completa Serie & Salva su DB';
-          btn.classList.replace('bg-emerald-600', 'bg-cyan-600');
+          btn.classList.replace('text-emerald-400', 'text-cyan-400');
           btn.disabled = false;
         }, 2000);
       } catch (err) {
         btn.textContent = 'Errore!';
-        btn.classList.replace('bg-cyan-600', 'bg-rose-600');
+        btn.classList.replace('text-cyan-400', 'text-rose-400');
       }
     }
 
