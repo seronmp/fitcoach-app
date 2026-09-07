@@ -39,16 +39,16 @@
     <section id="dashboard-section" class="hidden flex flex-col gap-4">
       <div class="flex justify-between items-center mb-2">
         <h3 class="text-lg font-bold text-slate-200">Seleziona Cliente</h3>
+        <button onclick="toggleModal('modal-client', true)" class="bg-cyan-600 hover:bg-cyan-500 text-slate-900 text-xs font-bold px-3 py-2 rounded-xl transition">
+          + Nuovo Cliente
+        </button>
       </div>
-      <div id="clients-list" class="flex flex-col gap-3">
-        <!-- Lista popolata via JS -->
-      </div>
+      <div id="clients-list" class="flex flex-col gap-3"></div>
     </section>
 
     <!-- VISTA 3: SCHEDA ALLENAMENTO -->
     <section id="workout-section" class="hidden flex flex-col gap-6">
       
-      <!-- Pulsante Torna ai Clienti -->
       <button onclick="showDashboard()" class="text-xs text-cyan-400 font-medium self-start flex items-center gap-1 hover:underline">
         ← Torna alla lista clienti
       </button>
@@ -68,7 +68,12 @@
 
       <!-- Esercizi -->
       <div class="flex flex-col gap-4">
-        <h3 class="text-lg font-bold text-slate-300">Scheda Allenamento</h3>
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-bold text-slate-300">Scheda Allenamento</h3>
+          <button onclick="toggleModal('modal-exercise', true)" class="bg-slate-700 hover:bg-slate-600 text-cyan-400 border border-slate-600 text-xs font-bold px-3 py-1.5 rounded-xl transition">
+            + Crea Esercizio
+          </button>
+        </div>
         <div id="exercises-list" class="flex flex-col gap-4"></div>
       </div>
 
@@ -76,7 +81,38 @@
 
   </main>
 
-  <!-- Timer Bar Fissa in Basso -->
+  <!-- MODALE: NUOVO CLIENTE -->
+  <div id="modal-client" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-sm w-full flex flex-col gap-4">
+      <h3 class="text-lg font-bold text-slate-100">Nuovo Cliente</h3>
+      <input type="text" id="new-client-name" placeholder="Nome e Cognome" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+      <input type="text" id="new-client-goal" placeholder="Obiettivo (es. Ipertrofia)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+      <input type="number" id="new-client-sessions" placeholder="Sessioni Totali (es. 10)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+      <div class="flex justify-end gap-2 mt-2">
+        <button onclick="toggleModal('modal-client', false)" class="bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold">Annulla</button>
+        <button onclick="saveNewClient()" class="bg-cyan-600 text-slate-900 px-4 py-2 rounded-xl text-xs font-bold">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE: NUOVO ESERCIZIO -->
+  <div id="modal-exercise" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-sm w-full flex flex-col gap-4">
+      <h3 class="text-lg font-bold text-slate-100">Nuovo Esercizio</h3>
+      <input type="text" id="new-ex-name" placeholder="Nome Esercizio" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+      <input type="text" id="new-ex-group" placeholder="Gruppo Muscolare (es. Petto)" class="bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+      <div class="flex gap-2">
+        <input type="number" id="new-ex-sets" placeholder="Serie (es. 4)" class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+        <input type="text" id="new-ex-reps" placeholder="Reps (es. 8-10)" class="w-1/2 bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+      </div>
+      <div class="flex justify-end gap-2 mt-2">
+        <button onclick="toggleModal('modal-exercise', false)" class="bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold">Annulla</button>
+        <button onclick="saveNewExercise()" class="bg-cyan-600 text-slate-900 px-4 py-2 rounded-xl text-xs font-bold">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timer Bar Fissa -->
   <footer id="timer-footer" class="hidden sticky bottom-0 bg-slate-800 border-t border-slate-700 p-4 shadow-2xl">
     <div class="max-w-xl mx-auto flex justify-between items-center gap-2">
       <div class="flex flex-col">
@@ -92,17 +128,15 @@
   </footer>
 
   <script>
-    // Configurazione
-    const TRAINER_PIN = "1234"; // PIN di accesso
+    const TRAINER_PIN = "1234";
     const SUPABASE_URL = "https://iqktzacvuhspdjdcwcnx.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxa3R6YWN2dWhzcGRqZGN3Y254Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1Mjg3MjYsImV4cCI6MjEwNDEwNDcyNn0.iTdWadVFqK1nh-iOFrwto7t3tXr346lJ9UpLwETGJnc";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxa3R6YWN2dWhzcGRqZGN3Y254Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzgwMTcsImV4cCI6MjA1NjzgNDAxN30.9-Kk_9kK3jW0l8S_mY7LdZ9Y_S2wL4X3K9Q8P1O0R0M";
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let activeClientId = null;
+    let activeClient = null;
     let audioCtx = null;
     let timerInterval = null;
 
-    // Login & Autenticazione PIN
     function checkPin() {
       const pin = document.getElementById('pin-input').value;
       if (pin === TRAINER_PIN) {
@@ -124,7 +158,10 @@
       document.getElementById('logout-btn').classList.add('hidden');
     }
 
-    // Caricamento Lista Clienti
+    function toggleModal(id, show) {
+      document.getElementById(id).classList.toggle('hidden', !show);
+    }
+
     async function showDashboard() {
       document.getElementById('workout-section').classList.add('hidden');
       document.getElementById('timer-footer').classList.add('hidden');
@@ -136,11 +173,6 @@
       try {
         const { data: clients, error } = await supabaseClient.from('clients').select('*');
         if (error) throw error;
-
-        if (!clients || clients.length === 0) {
-          container.innerHTML = '<p class="text-sm text-amber-400 text-center py-4">Nessun cliente trovato nel database.</p>';
-          return;
-        }
 
         container.innerHTML = '';
         clients.forEach(client => {
@@ -159,19 +191,31 @@
           container.appendChild(card);
         });
       } catch (err) {
-        console.error("Errore Supabase:", err);
-        container.innerHTML = `
-          <div class="text-center py-4">
-            <p class="text-sm text-rose-400 font-bold">Errore di caricamento</p>
-            <p class="text-xs text-slate-400 mt-1">${err.message || JSON.stringify(err)}</p>
-          </div>
-        `;
+        container.innerHTML = `<p class="text-sm text-rose-400 text-center py-4">Errore caricamento clienti</p>`;
       }
     }
 
-    // Caricamento Scheda Cliente
+    async function saveNewClient() {
+      const name = document.getElementById('new-client-name').value;
+      const goal = document.getElementById('new-client-goal').value;
+      const sessions = parseInt(document.getElementById('new-client-sessions').value) || 10;
+
+      if (!name) return alert("Inserisci il nome del cliente");
+
+      const { error } = await supabaseClient.from('clients').insert([
+        { name: name, goal: goal, current_session: 1, total_sessions: sessions }
+      ]);
+
+      if (error) {
+        alert("Errore durante il salvataggio");
+      } else {
+        toggleModal('modal-client', false);
+        showDashboard();
+      }
+    }
+
     async function loadClientWorkout(client) {
-      activeClientId = client.id;
+      activeClient = client;
       document.getElementById('dashboard-section').classList.add('hidden');
       document.getElementById('workout-section').classList.remove('hidden');
       document.getElementById('timer-footer').classList.remove('hidden');
@@ -189,11 +233,17 @@
 
         container.innerHTML = '';
         exercises.forEach(ex => {
-          const nameObj = typeof ex.name_json === 'string' ? JSON.parse(ex.name_json) : ex.name_json;
-          const groupObj = typeof ex.group_json === 'string' ? JSON.parse(ex.group_json) : ex.group_json;
+          let exName = 'Esercizio';
+          let exGroup = '';
 
-          const exName = nameObj?.it || 'Esercizio';
-          const exGroup = groupObj?.it || '';
+          try {
+            const nameObj = typeof ex.name_json === 'string' ? JSON.parse(ex.name_json) : ex.name_json;
+            const groupObj = typeof ex.group_json === 'string' ? JSON.parse(ex.group_json) : ex.group_json;
+            exName = nameObj?.it || ex.name || 'Esercizio';
+            exGroup = groupObj?.it || ex.group || '';
+          } catch(e) {
+            exName = ex.name || 'Esercizio';
+          }
 
           const card = document.createElement('div');
           card.className = 'bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-col gap-2';
@@ -216,6 +266,31 @@
       }
     }
 
+    async function saveNewExercise() {
+      const name = document.getElementById('new-ex-name').value;
+      const group = document.getElementById('new-ex-group').value;
+      const sets = parseInt(document.getElementById('new-ex-sets').value) || 3;
+      const reps = document.getElementById('new-ex-reps').value || '10';
+
+      if (!name) return alert("Inserisci il nome dell'esercizio");
+
+      const { error } = await supabaseClient.from('exercises').insert([
+        {
+          name_json: { it: name },
+          group_json: { it: group },
+          sets: sets,
+          reps: reps
+        }
+      ]);
+
+      if (error) {
+        alert("Errore salvataggio esercizio");
+      } else {
+        toggleModal('modal-exercise', false);
+        if (activeClient) loadClientWorkout(activeClient);
+      }
+    }
+
     async function logSet(exName, btn) {
       initAudio();
       try {
@@ -223,7 +298,7 @@
         btn.textContent = 'Salvataggio...';
 
         const { error } = await supabaseClient.from('workout_logs').insert([
-          { client_id: activeClientId, exercise_name: exName, completed_sets: 1 }
+          { client_id: activeClient.id, exercise_name: exName, completed_sets: 1 }
         ]);
 
         if (error) throw error;
@@ -241,7 +316,6 @@
       }
     }
 
-    // Audio & Timer
     function initAudio() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume();
