@@ -65,17 +65,30 @@
           </span>
         </div>
 
-        <!-- Pulsante per Creare/Registrare Nuova Sessione -->
+        <!-- Pulsante per Programmare/Creare Nuova Sessione -->
         <button onclick="openSessionBuilder()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold py-3 rounded-xl text-sm transition flex justify-center items-center gap-2">
-          ⏱️ Crea & Pianifica Sessione (es. 60 Minuti)
+          📅 Programma / Pianifica Sessione
         </button>
       </div>
 
-      <!-- Storico Sessioni svolte -->
-      <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
-        <h3 class="text-sm font-bold text-slate-300 mb-2">Storico Sessioni Svolte</h3>
+      <!-- Banner Sessione Live In Corso (visibile solo se una sessione è attiva) -->
+      <div id="live-session-banner" class="hidden bg-gradient-to-r from-cyan-900/80 to-slate-800 border border-cyan-500/50 p-4 rounded-xl flex flex-col gap-2">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span> Sessione In Corso (LIVE)
+          </span>
+          <span id="live-session-timer" class="text-2xl font-mono font-bold text-cyan-400">60:00</span>
+        </div>
+        <button onclick="completeLiveSession()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold py-2 rounded-lg mt-1">
+          ✓ Completa & Salva Sessione
+        </button>
+      </div>
+
+      <!-- Programmazione / Storico Sessioni -->
+      <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60 flex flex-col gap-3">
+        <h3 class="text-sm font-bold text-slate-300">Sessioni Programmate e Storico</h3>
         <div id="sessions-history" class="text-xs text-slate-400 flex flex-col gap-2">
-          Nessuna sessione ancora registrata.
+          Nessuna sessione trovata.
         </div>
       </div>
 
@@ -108,15 +121,27 @@
     </div>
   </div>
 
-  <!-- MODALE: CREA SESSIONE DI ALLENAMENTO (TIME-BASED) -->
+  <!-- MODALE: PROGRAMMA / CREA SESSIONE -->
   <div id="modal-session" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center p-4 hidden z-50 overflow-y-auto">
     <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl max-w-md w-full flex flex-col gap-4 my-auto max-h-[90vh]">
-      <h3 class="text-lg font-bold text-slate-100">Crea Sessione di Allenamento</h3>
+      <h3 class="text-lg font-bold text-slate-100">Programma Sessione</h3>
       
+      <!-- Programmazione Data e Ora -->
+      <div class="flex gap-2">
+        <div class="w-1/2">
+          <label class="text-xs text-slate-400 mb-1 block">Data:</label>
+          <input type="date" id="session-date" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
+        </div>
+        <div class="w-1/2">
+          <label class="text-xs text-slate-400 mb-1 block">Ora Inizio:</label>
+          <input type="time" id="session-time" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
+        </div>
+      </div>
+
       <!-- Selezione Durata Totale -->
       <div>
         <label class="text-xs text-slate-400 mb-1 block">Durata Totale Obiettivo:</label>
-        <select id="session-target-duration" onchange="updateSessionTimerUI()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+        <select id="session-target-duration" onchange="updateSessionTimerUI()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
           <option value="60" selected>60 Minuti (1 Ora)</option>
           <option value="45">45 Minuti</option>
           <option value="30">30 Minuti</option>
@@ -125,7 +150,7 @@
         </select>
       </div>
 
-      <!-- Barra di progresso del tempo allocato -->
+      <!-- Barra del tempo allocato -->
       <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 flex flex-col gap-1">
         <div class="flex justify-between text-xs">
           <span class="text-slate-400">Tempo Assegnato:</span>
@@ -136,23 +161,23 @@
         </div>
       </div>
 
-      <!-- Selettore Esercizi per la sessione -->
+      <!-- Selettore Esercizi -->
       <div class="flex flex-col gap-2">
-        <label class="text-xs text-slate-400">Seleziona Esercizi e assegna minuti:</label>
-        <div id="session-exercises-selector" class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
+        <label class="text-xs text-slate-400">Seleziona Esercizi e distribuisci i minuti:</label>
+        <div id="session-exercises-selector" class="flex flex-col gap-2 max-h-40 overflow-y-auto pr-1">
           <p class="text-xs text-slate-500">Caricamento esercizi...</p>
         </div>
       </div>
 
-      <!-- Note Sessione -->
+      <!-- Note -->
       <div>
-        <label class="text-xs text-slate-400 mb-1 block">Note / Feedback Sessione (opzionale):</label>
-        <textarea id="session-notes" placeholder="es. Focus su panca e tecnica squat" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-400 h-16 resize-none"></textarea>
+        <label class="text-xs text-slate-400 mb-1 block">Note (opzionale):</label>
+        <textarea id="session-notes" placeholder="es. Focus su panca e tecnica squat" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-400 h-14 resize-none"></textarea>
       </div>
 
       <div class="flex justify-end gap-2 mt-2">
         <button onclick="toggleModal('modal-session', false)" class="bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold">Annulla</button>
-        <button onclick="savePlannedSession()" class="bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold">Salva Sessione</button>
+        <button onclick="savePlannedSession()" class="bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold">Salva Programmazione</button>
       </div>
     </div>
   </div>
@@ -174,11 +199,11 @@
     </div>
   </div>
 
-  <!-- Timer Bar Fissa in Basso -->
+  <!-- Timer Bar Fissa in Basso per i Recuperi Tra le Serie -->
   <footer id="timer-footer" class="hidden sticky bottom-0 bg-slate-800 border-t border-slate-700 p-4 shadow-2xl">
     <div class="max-w-xl mx-auto flex justify-between items-center gap-2">
       <div class="flex flex-col">
-        <span class="text-xs text-slate-400 uppercase tracking-wider">Recupero</span>
+        <span class="text-xs text-slate-400 uppercase tracking-wider">Recupero Serie</span>
         <span id="timer-display" class="text-2xl font-mono font-bold text-amber-400">00:00</span>
       </div>
       <div class="flex gap-2">
@@ -198,7 +223,10 @@
     let activeClient = null;
     let availableExercises = [];
     let audioCtx = null;
-    let timerInterval = null;
+    let restTimerInterval = null;
+    let sessionTimerInterval = null;
+    let activeSessionId = null;
+    let liveTimeRemaining = 0;
 
     function checkPin() {
       const pin = document.getElementById('pin-input').value;
@@ -266,7 +294,7 @@
       if (!name) return alert("Inserisci il nome del cliente");
 
       const { error } = await supabaseClient.from('clients').insert([
-        { name: name, goal: goal, current_session: 1, total_sessions: sessions }
+        { name: name, goal: goal, current_session: 0, total_sessions: sessions }
       ]);
 
       if (error) {
@@ -325,7 +353,7 @@
               <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300 font-mono">${ex.sets || 3}x${ex.reps || '10'}</span>
             </div>
             <button onclick="logSet('${exName.replace(/'/g, "\\'")}', this)" class="mt-2 w-full bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-bold py-2 rounded-lg text-sm transition">
-              Completa & Salva su DB
+              Completa Serie & Salva su DB
             </button>
           `;
           container.appendChild(card);
@@ -336,13 +364,18 @@
     }
 
     function openSessionBuilder() {
+      // Imposta data e ora correnti come default
+      const now = new Date();
+      document.getElementById('session-date').value = now.toISOString().split('T')[0];
+      document.getElementById('session-time').value = now.toTimeString().substring(0,5);
+
       const container = document.getElementById('session-exercises-selector');
       container.innerHTML = '';
 
       if (availableExercises.length === 0) {
         container.innerHTML = '<p class="text-xs text-rose-400">Crea prima degli esercizi nella libreria.</p>';
       } else {
-        availableExercises.forEach((ex, idx) => {
+        availableExercises.forEach((ex) => {
           let exName = ex.name || 'Esercizio';
           try {
             const nameObj = typeof ex.name_json === 'string' ? JSON.parse(ex.name_json) : ex.name_json;
@@ -357,7 +390,7 @@
               <span class="ex-name">${exName}</span>
             </label>
             <div class="flex items-center gap-1">
-              <input type="number" value="15" min="5" step="5" class="ex-minutes w-16 bg-slate-800 border border-slate-700 text-center rounded-lg p-1 text-xs text-cyan-400 font-mono focus:outline-none focus:border-cyan-400" onchange="updateSessionTimerUI()">
+              <input type="number" value="15" min="5" step="5" class="ex-minutes w-14 bg-slate-800 border border-slate-700 text-center rounded-lg p-1 text-xs text-cyan-400 font-mono focus:outline-none focus:border-cyan-400" onchange="updateSessionTimerUI()">
               <span class="text-[10px] text-slate-400">min</span>
             </div>
           `;
@@ -405,8 +438,12 @@
     async function savePlannedSession() {
       if (!activeClient) return;
 
+      const dateVal = document.getElementById('session-date').value;
+      const timeVal = document.getElementById('session-time').value;
       const targetDuration = parseInt(document.getElementById('session-target-duration').value) || 60;
       const notes = document.getElementById('session-notes').value || '';
+
+      const scheduledAt = (dateVal && timeVal) ? `${dateVal}T${timeVal}:00` : new Date().toISOString();
 
       const plannedExercises = [];
       const rows = document.querySelectorAll('#session-exercises-selector > div');
@@ -423,38 +460,77 @@
       });
 
       try {
-        // 1. Salva la sessione time-based su Supabase
-        const { error: sessionError } = await supabaseClient.from('sessions').insert([
+        const { error } = await supabaseClient.from('sessions').insert([
           {
             client_id: activeClient.id,
             duration_minutes: targetDuration,
             exercises_json: plannedExercises,
-            notes: notes
+            notes: notes,
+            scheduled_at: scheduledAt,
+            status: 'scheduled'
           }
         ]);
 
-        if (sessionError) throw sessionError;
+        if (error) throw error;
 
-        // 2. Incrementa il conteggio sessione per il cliente
-        const nextSessionNum = (activeClient.current_session || 0) + 1;
-        const { error: clientError } = await supabaseClient.from('clients')
-          .update({ current_session: nextSessionNum })
-          .eq('id', activeClient.id);
-
-        if (clientError) throw clientError;
-
-        activeClient.current_session = nextSessionNum;
-        document.getElementById('session-count').textContent = `Sessione ${nextSessionNum}/${activeClient.total_sessions || 0}`;
-
-        document.getElementById('session-notes').value = '';
         toggleModal('modal-session', false);
         loadSessionsHistory(activeClient.id);
-
-        alert(`Sessione di ${targetDuration} min registrata con successo! Passati a Sessione ${nextSessionNum}`);
+        alert(`Sessione programmata con successo per ${dateVal} alle ${timeVal}`);
 
       } catch (err) {
         alert("Errore salvataggio sessione: " + err.message);
       }
+    }
+
+    async function startLiveSession(sessionId, durationMinutes) {
+      activeSessionId = sessionId;
+      liveTimeRemaining = durationMinutes * 60;
+
+      // Aggiorna stato in DB
+      await supabaseClient.from('sessions').update({ status: 'in_progress' }).eq('id', sessionId);
+
+      document.getElementById('live-session-banner').classList.remove('hidden');
+      updateLiveTimerDisplay();
+
+      clearInterval(sessionTimerInterval);
+      sessionTimerInterval = setInterval(() => {
+        liveTimeRemaining--;
+        updateLiveTimerDisplay();
+        if (liveTimeRemaining <= 0) {
+          clearInterval(sessionTimerInterval);
+          playBeep(900, 0.3);
+          alert("⏰ Tempo sessione terminato!");
+        }
+      }, 1000);
+
+      loadSessionsHistory(activeClient.id);
+    }
+
+    function updateLiveTimerDisplay() {
+      const mins = Math.floor(liveTimeRemaining / 60);
+      const secs = liveTimeRemaining % 60;
+      document.getElementById('live-session-timer').textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    async function completeLiveSession() {
+      if (!activeSessionId) return;
+
+      clearInterval(sessionTimerInterval);
+      document.getElementById('live-session-banner').classList.add('hidden');
+
+      // 1. Marca la sessione come completata
+      await supabaseClient.from('sessions').update({ status: 'completed' }).eq('id', activeSessionId);
+
+      // 2. Incrementa conteggio sessioni cliente
+      const nextSessionNum = (activeClient.current_session || 0) + 1;
+      await supabaseClient.from('clients').update({ current_session: nextSessionNum }).eq('id', activeClient.id);
+
+      activeClient.current_session = nextSessionNum;
+      document.getElementById('session-count').textContent = `Sessione ${nextSessionNum}/${activeClient.total_sessions || 0}`;
+
+      activeSessionId = null;
+      loadSessionsHistory(activeClient.id);
+      alert("✓ Sessione completata e registrata nello storico!");
     }
 
     async function loadSessionsHistory(clientId) {
@@ -464,31 +540,51 @@
           .from('sessions')
           .select('*')
           .eq('client_id', clientId)
-          .order('created_at', { ascending: false })
-          .limit(5);
+          .order('scheduled_at', { ascending: false })
+          .limit(10);
 
         if (error || !sessions || sessions.length === 0) {
-          historyDiv.innerHTML = 'Nessuna sessione registrata finora.';
+          historyDiv.innerHTML = 'Nessuna sessione trovata.';
           return;
         }
 
         historyDiv.innerHTML = sessions.map(s => {
-          const dateStr = new Date(s.session_date || s.created_at).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+          const schedDate = s.scheduled_at ? new Date(s.scheduled_at) : new Date(s.created_at);
+          const dateStr = schedDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' });
+          const timeStr = schedDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
           let exListStr = '';
-          
           if (s.exercises_json && Array.isArray(s.exercises_json) && s.exercises_json.length > 0) {
             exListStr = '<div class="text-[11px] text-slate-300 mt-1 pl-2 border-l-2 border-cyan-500/50">' +
               s.exercises_json.map(e => `• ${e.name} (${e.minutes} min)`).join('<br>') +
               '</div>';
           }
 
-          return `<div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700/50 flex flex-col gap-1">
+          let actionBtn = '';
+          let statusBadge = '';
+
+          if (s.status === 'scheduled') {
+            statusBadge = `<span class="bg-amber-900/60 text-amber-300 px-2 py-0.5 rounded text-[10px] border border-amber-700">Programmata</span>`;
+            actionBtn = `<button onclick="startLiveSession(${s.id}, ${s.duration_minutes})" class="mt-2 w-full bg-cyan-600 hover:bg-cyan-500 text-slate-900 font-bold py-1.5 rounded-lg text-xs transition">
+              ▶ Avvia Ora Sessione (${s.duration_minutes} min)
+            </button>`;
+          } else if (s.status === 'in_progress') {
+            statusBadge = `<span class="bg-cyan-900/80 text-cyan-300 px-2 py-0.5 rounded text-[10px] border border-cyan-500 animate-pulse">In Corso</span>`;
+          } else {
+            statusBadge = `<span class="bg-emerald-900/60 text-emerald-300 px-2 py-0.5 rounded text-[10px] border border-emerald-700">Completata</span>`;
+          }
+
+          return `<div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/50 flex flex-col gap-1">
             <div class="flex justify-between items-center text-xs">
-              <span class="font-semibold text-cyan-400">📅 ${dateStr}</span>
-              <span class="bg-slate-700 text-emerald-400 font-mono px-2 py-0.5 rounded text-[10px]">⏱️ ${s.duration_minutes} min</span>
+              <span class="font-semibold text-cyan-400">📅 ${dateStr} ore ${timeStr}</span>
+              <div class="flex gap-1 items-center">
+                ${statusBadge}
+                <span class="bg-slate-700 text-slate-300 font-mono px-2 py-0.5 rounded text-[10px]">⏱️ ${s.duration_minutes} min</span>
+              </div>
             </div>
             ${exListStr}
             ${s.notes ? `<p class="text-[11px] text-slate-400 italic mt-0.5">${s.notes}</p>` : ''}
+            ${actionBtn}
           </div>`;
         }).join('');
 
@@ -547,7 +643,7 @@
         btn.textContent = '✓ Salvato';
         btn.classList.replace('bg-cyan-600', 'bg-emerald-600');
         setTimeout(() => {
-          btn.textContent = 'Completa & Salva su DB';
+          btn.textContent = 'Completa Serie & Salva su DB';
           btn.classList.replace('bg-emerald-600', 'bg-cyan-600');
           btn.disabled = false;
         }, 2000);
@@ -578,15 +674,15 @@
 
     function startRest(seconds) {
       initAudio();
-      clearInterval(timerInterval);
+      clearInterval(restTimerInterval);
       let timeLeft = seconds;
-      updateTimerDisplay(timeLeft);
+      updateRestTimerDisplay(timeLeft);
 
-      timerInterval = setInterval(() => {
+      restTimerInterval = setInterval(() => {
         timeLeft--;
-        updateTimerDisplay(timeLeft);
+        updateRestTimerDisplay(timeLeft);
         if (timeLeft <= 0) {
-          clearInterval(timerInterval);
+          clearInterval(restTimerInterval);
           playBeep(800, 0.15);
           setTimeout(() => playBeep(1200, 0.25), 200);
           if ('vibrate' in navigator) navigator.vibrate([200, 100, 200]);
@@ -595,11 +691,11 @@
     }
 
     function stopTimer() {
-      clearInterval(timerInterval);
-      updateTimerDisplay(0);
+      clearInterval(restTimerInterval);
+      updateRestTimerDisplay(0);
     }
 
-    function updateTimerDisplay(sec) {
+    function updateRestTimerDisplay(sec) {
       const mins = Math.floor(sec / 60);
       const secs = sec % 60;
       document.getElementById('timer-display').textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
