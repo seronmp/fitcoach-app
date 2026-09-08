@@ -703,39 +703,39 @@
         }
       }
     }
+async function saveActivePanelSet() {
+  if (!activeClient) return;
 
-    async function saveActivePanelSet() {
-      if (!activeClient) return;
+  const kgInput = document.getElementById('panel-input-kg');
+  const repsInput = document.getElementById('panel-input-reps');
+  
+  const kg = parseFloat(kgInput.value) || 0;
+  const reps = parseInt(repsInput.value) || 10;
+  const exName = document.getElementById('panel-ex-name').textContent;
 
-      const kgInput = document.getElementById('panel-input-kg');
-      const repsInput = document.getElementById('panel-input-reps');
-      
-      const kg = parseFloat(kgInput.value) || 0;
-      const reps = parseInt(repsInput.value) || 10;
-      const exName = document.getElementById('panel-ex-name').textContent;
+  initAudio();
 
-      initAudio();
+  try {
+    // Inserimento compatibile con lo schema base della tabella
+    const { error } = await supabaseClient.from('workout_logs').insert([
+      { 
+        client_id: activeClient.id, 
+        exercise_name: exName, 
+        completed_sets: 1
+      }
+    ]);
 
-      try {
-        const { error } = await supabaseClient.from('workout_logs').insert([
-          { 
-            client_id: activeClient.id, 
-            exercise_name: exName, 
-            completed_sets: 1,
-            notes: `${kg}kg x ${reps}reps`
-          }
-        ]);
+    if (error) throw error;
 
-        if (error) throw error;
+    if (!loggedSetsMap[currentExerciseIdx]) loggedSetsMap[currentExerciseIdx] = [];
+    loggedSetsMap[currentExerciseIdx].push({ kg, reps });
 
-        if (!loggedSetsMap[currentExerciseIdx]) loggedSetsMap[currentExerciseIdx] = [];
-        loggedSetsMap[currentExerciseIdx].push({ kg, reps });
+    refreshPanelHistory();
+    startRest(90);
 
-        refreshPanelHistory();
-        startRest(90);
-
-      } catch (err) {
-        alert("Errore salvataggio serie: " + err.message);
+  } catch (err) {
+    alert("Errore salvataggio serie: " + err.message);
+   
       }
     }
 
