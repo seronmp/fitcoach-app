@@ -42,7 +42,6 @@
     </div>
 
     <div class="flex items-center gap-3">
-      <!-- Selettore Multilingua -->
       <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-slate-900 border border-slate-700 text-xs font-semibold text-slate-200 py-1.5 px-2.5 rounded-xl focus:outline-none focus:border-cyan-400 cursor-pointer">
         <option value="it" selected>🇮🇹 IT</option>
         <option value="en">🇬🇧 EN</option>
@@ -56,7 +55,7 @@
   </header>
 
   <!-- Container Principale -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col gap-6 relative">
+  <main class="flex-1 max-w-[1600px] w-full mx-auto p-4 flex flex-col gap-6 relative">
 
     <!-- VISTA 1: LOGIN TRAINER -->
     <section id="login-section" class="glass-card p-8 rounded-3xl shadow-2xl my-auto text-center flex flex-col gap-6 border border-slate-800 max-w-sm mx-auto w-full">
@@ -92,7 +91,7 @@
       <div id="clients-list" class="flex flex-col gap-3"></div>
     </section>
 
-    <!-- VISTA 3: SCHEDA ALLENAMENTO WORKOUT -->
+    <!-- VISTA 3: SCHEDA ALLENAMENTO WORKOUT (3 COLONNE) -->
     <section id="workout-section" class="hidden flex flex-col gap-4">
       
       <button onclick="showDashboard()" class="text-xs text-slate-400 hover:text-cyan-400 font-medium self-start flex items-center gap-1.5 transition">
@@ -100,32 +99,52 @@
         <span data-i18n="back_to_clients">Torna alla lista clienti</span>
       </button>
 
-      <!-- Layout Flessibile: Scheda Sinistra + Pannello Persistente Destra -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Grid a 3 Colonne -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         
-        <!-- COLONNA SINISTRA: Info Cliente e Lista Esercizi -->
-        <div id="main-workout-col" class="lg:col-span-12 transition-all duration-300 flex flex-col gap-6">
-          
-          <!-- Card Info Cliente -->
-          <div class="glass-card p-6 rounded-3xl border border-slate-800 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden">
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none"></div>
-            <div>
-              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest" data-i18n="selected_client">Cliente Selezionato</span>
-              <h2 id="client-name" class="text-2xl font-extrabold text-slate-100 tracking-tight mt-0.5">-</h2>
-              <p id="client-goal" class="text-xs font-semibold text-cyan-400 mt-1 uppercase tracking-wider">-</p>
+        <!-- COLONNA 1 (SINISTRA): SCHEDA E PROGRESSI CLIENTE -->
+        <div class="lg:col-span-3 glass-card p-5 rounded-3xl border border-slate-800 flex flex-col gap-5 sticky top-20 shadow-xl">
+          <div class="border-b border-slate-800/80 pb-4">
+            <span class="text-[10px] font-extrabold text-cyan-400 uppercase tracking-widest">Scheda Atleta</span>
+            <h2 id="card-client-name" class="text-xl font-bold text-slate-100 mt-1">-</h2>
+            <span id="card-client-goal-badge" class="inline-block text-[11px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2.5 py-0.5 rounded-md mt-2">
+              -
+            </span>
+          </div>
+
+          <!-- Avanzamento e Progressi Percorso -->
+          <div class="flex flex-col gap-2 bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-400 font-medium">Progresso Percorso</span>
+              <span id="card-progress-pct" class="font-bold font-mono text-emerald-400">0%</span>
             </div>
-            
-            <div class="flex items-center gap-3">
-              <span id="session-count" class="bg-slate-800/80 border border-slate-700 text-xs px-3.5 py-2 rounded-xl font-mono text-slate-300 shadow-inner">
-                Sessione -/-
-              </span>
-              <button onclick="openSessionBuilder()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-md shadow-emerald-500/20 btn-press flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                <span data-i18n="plan_session_btn">Programma Sessione</span>
-              </button>
+            <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+              <div id="card-progress-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-2.5 w-0 transition-all duration-500"></div>
+            </div>
+            <div class="flex justify-between items-center text-[11px] text-slate-400 mt-1">
+              <span>Sessioni svolte:</span>
+              <span id="card-sessions-count" class="font-mono font-bold text-slate-200">0 / 0</span>
             </div>
           </div>
 
+          <!-- Dettagli Obiettivi & Note Profilo -->
+          <div class="flex flex-col gap-2">
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Obiettivo Principale</span>
+            <p id="card-client-goal-text" class="text-xs text-slate-300 leading-relaxed bg-slate-900/50 p-3 rounded-xl border border-slate-800/80">
+              -
+            </p>
+          </div>
+
+          <!-- Pulsante Programmazione -->
+          <button onclick="openSessionBuilder()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold py-3 rounded-xl transition shadow-md shadow-emerald-500/20 btn-press flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span data-i18n="plan_session_btn">Programma Sessione</span>
+          </button>
+        </div>
+
+        <!-- COLONNA 2 (CENTRO): ESERCIZI E STORICO SESSIONI -->
+        <div id="main-workout-col" class="lg:col-span-9 transition-all duration-300 flex flex-col gap-5">
+          
           <!-- Banner Live Session Timer -->
           <div id="live-session-banner" class="hidden glass-card border-cyan-500/40 p-5 rounded-3xl flex justify-between items-center relative overflow-hidden shadow-xl shadow-cyan-950/50">
             <div class="flex items-center gap-3">
@@ -161,21 +180,20 @@
 
         </div>
 
-        <!-- COLONNA DESTRA: PANNELLO PERSISTENTE ESERCIZIO ATTIVO (DRAWER) -->
-        <div id="persistent-panel" class="hidden lg:col-span-5 glass-card p-6 rounded-3xl border border-cyan-500/30 flex flex-col gap-5 sticky top-20 shadow-2xl shadow-cyan-950/40 relative">
+        <!-- COLONNA 3 (DESTRA): PANNELLO PERSISTENTE REGISTRAZIONE SERIE -->
+        <div id="persistent-panel" class="hidden lg:col-span-4 glass-card p-5 rounded-3xl border border-cyan-500/30 flex flex-col gap-5 sticky top-20 shadow-2xl shadow-cyan-950/40 relative">
           
           <button onclick="closePersistentPanel()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100 p-1 rounded-lg bg-slate-800/50">
             ✕
           </button>
 
-          <!-- Dettagli Esercizio Attivo -->
           <div class="border-b border-slate-800 pb-3 pr-6">
             <span id="panel-ex-group" class="text-[10px] font-extrabold text-cyan-400 uppercase tracking-wider">GRUPPO</span>
             <h3 id="panel-ex-name" class="text-xl font-bold text-slate-100 mt-0.5">Nome Esercizio</h3>
             <p id="panel-ex-target" class="text-xs font-mono text-slate-400 mt-1">Target: 3x10</p>
           </div>
 
-          <!-- Form Inserimento Serie Attiva -->
+          <!-- Form Inserimento Serie -->
           <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80 flex flex-col gap-3">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-slate-300">Registra Nuova Serie</span>
@@ -198,7 +216,7 @@
             </button>
           </div>
 
-          <!-- Registro Serie Fatte per questo esercizio -->
+          <!-- Registro Serie Fatte -->
           <div class="flex flex-col gap-2">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Serie Registrate Oggi</span>
             <div id="panel-sets-history" class="flex flex-col gap-1.5 max-h-36 overflow-y-auto pr-1">
@@ -206,7 +224,7 @@
             </div>
           </div>
 
-          <!-- Controlli di Navigazione Rapida (Precedente / Successivo / Nuovo) -->
+          <!-- Navigazione Esercizi -->
           <div class="border-t border-slate-800 pt-4 flex flex-col gap-2">
             <div class="grid grid-cols-2 gap-2">
               <button onclick="navigateExercise(-1)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold py-2.5 px-3 rounded-xl transition border border-slate-700 btn-press flex items-center justify-center gap-1">
@@ -216,10 +234,6 @@
                 Prossimo →
               </button>
             </div>
-            
-            <button onclick="toggleModal('modal-exercise', true)" class="w-full bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-emerald-500/30 text-xs font-bold py-2.5 rounded-xl transition btn-press flex items-center justify-center gap-1.5 mt-1">
-              <span>+</span> <span>Aggiungi Altro Esercizio</span>
-            </button>
           </div>
 
         </div>
@@ -230,7 +244,7 @@
 
   </main>
 
-  <!-- MODALE: NUOVO CLIENTE -->
+  <!-- MODALI -->
   <div id="modal-client" class="fixed inset-0 glass-modal flex items-center justify-center p-4 hidden z-50">
     <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl max-w-sm w-full flex flex-col gap-4 shadow-2xl">
       <h3 class="text-lg font-bold text-slate-100" data-i18n="new_client_title">Nuovo Cliente</h3>
@@ -244,11 +258,9 @@
     </div>
   </div>
 
-  <!-- MODALE: PROGRAMMA SESSIONE -->
   <div id="modal-session" class="fixed inset-0 glass-modal flex items-center justify-center p-4 hidden z-50 overflow-y-auto">
     <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl max-w-md w-full flex flex-col gap-4 my-auto max-h-[90vh] shadow-2xl">
       <h3 class="text-lg font-bold text-slate-100" data-i18n="plan_session_title">Programma Sessione</h3>
-      
       <div class="flex gap-2">
         <div class="w-1/2">
           <label class="text-xs text-slate-400 mb-1 block" data-i18n="date_label">Data:</label>
@@ -259,7 +271,6 @@
           <input type="time" id="session-time" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
         </div>
       </div>
-
       <div>
         <label class="text-xs text-slate-400 mb-1 block" data-i18n="target_duration">Durata Totale Obiettivo:</label>
         <select id="session-target-duration" onchange="updateSessionTimerUI()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
@@ -267,10 +278,8 @@
           <option value="45">45 Minuti</option>
           <option value="30">30 Minuti</option>
           <option value="90">90 Minuti (1.5 Ore)</option>
-          <option value="120">120 Minuti (2 Ore)</option>
         </select>
       </div>
-
       <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 flex flex-col gap-1.5">
         <div class="flex justify-between text-xs">
           <span class="text-slate-400" data-i18n="time_allocated">Tempo Assegnato:</span>
@@ -280,19 +289,16 @@
           <div id="session-progress-bar" class="bg-emerald-500 h-2 w-0 transition-all duration-300"></div>
         </div>
       </div>
-
       <div class="flex flex-col gap-2">
         <label class="text-xs text-slate-400" data-i18n="select_exercises_timer">Seleziona Esercizi e distribuisci i minuti:</label>
         <div id="session-exercises-selector" class="flex flex-col gap-2 max-h-40 overflow-y-auto pr-1">
           <p class="text-xs text-slate-500">Caricamento esercizi...</p>
         </div>
       </div>
-
       <div>
         <label class="text-xs text-slate-400 mb-1 block" data-i18n="notes_label">Note (opzionale):</label>
         <textarea id="session-notes" placeholder="es. Focus su panca e tecnica squat" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-cyan-400 h-14 resize-none"></textarea>
       </div>
-
       <div class="flex justify-end gap-2 mt-2">
         <button onclick="toggleModal('modal-session', false)" class="bg-slate-800 text-slate-300 px-4 py-2 rounded-xl text-xs font-bold btn-press" data-i18n="cancel">Annulla</button>
         <button onclick="savePlannedSession()" class="bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold btn-press" data-i18n="save_plan">Salva Programmazione</button>
@@ -300,7 +306,6 @@
     </div>
   </div>
 
-  <!-- MODALE: NUOVO ESERCIZIO -->
   <div id="modal-exercise" class="fixed inset-0 glass-modal flex items-center justify-center p-4 hidden z-50">
     <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl max-w-sm w-full flex flex-col gap-4 shadow-2xl">
       <h3 class="text-lg font-bold text-slate-100" data-i18n="new_ex_title">Nuovo Esercizio</h3>
@@ -317,7 +322,7 @@
     </div>
   </div>
 
-  <!-- Timer Rest Bar Fissa in Basso -->
+  <!-- Timer Rest Bar -->
   <footer id="timer-footer" class="hidden sticky bottom-0 z-30 glass-card border-t border-slate-800 p-4 shadow-2xl">
     <div class="max-w-6xl mx-auto flex justify-between items-center gap-2">
       <div class="flex flex-col">
@@ -360,7 +365,6 @@
         clients_subtitle: "Seleziona un profilo per gestire le sessioni",
         new_client_btn: "Nuovo Cliente",
         back_to_clients: "Torna alla lista clienti",
-        selected_client: "Cliente Selezionato",
         plan_session_btn: "Programma Sessione",
         session_in_progress: "Sessione In Corso",
         complete_session_btn: "Completa & Salva Sessione",
@@ -392,7 +396,6 @@
         clients_subtitle: "Select a profile to manage sessions",
         new_client_btn: "New Client",
         back_to_clients: "Back to client list",
-        selected_client: "Selected Client",
         plan_session_btn: "Schedule Session",
         session_in_progress: "Session In Progress",
         complete_session_btn: "Complete & Save Session",
@@ -547,9 +550,18 @@
       document.getElementById('workout-section').classList.remove('hidden');
       document.getElementById('timer-footer').classList.remove('hidden');
 
-      document.getElementById('client-name').textContent = client.name || 'Cliente';
-      document.getElementById('client-goal').textContent = client.goal || '';
-      document.getElementById('session-count').textContent = `Sessione ${client.current_session || 0}/${client.total_sessions || 0}`;
+      // Popola la Scheda Cliente a Sinistra
+      document.getElementById('card-client-name').textContent = client.name || 'Atleta';
+      document.getElementById('card-client-goal-badge').textContent = client.goal || 'Generale';
+      document.getElementById('card-client-goal-text').textContent = client.goal ? `Focus principale: ${client.goal}` : 'Nessun obiettivo specificato.';
+      
+      const done = client.current_session || 0;
+      const total = client.total_sessions || 10;
+      const pct = Math.min(100, Math.round((done / total) * 100));
+
+      document.getElementById('card-sessions-count').textContent = `${done} / ${total}`;
+      document.getElementById('card-progress-pct').textContent = `${pct}%`;
+      document.getElementById('card-progress-bar').style.width = `${pct}%`;
 
       loadSessionsHistory(client.id);
 
@@ -595,7 +607,7 @@
                 <span class="text-[11px] text-slate-500 italic">Clicca per registrare serie</span>
               </div>
               <button class="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 text-xs font-bold px-3 py-1.5 rounded-xl border border-cyan-500/30 transition btn-press">
-                Apri Trainer Panel →
+                Apri Panel →
               </button>
             </div>
           `;
@@ -606,7 +618,6 @@
       }
     }
 
-    /* GESTIONE PANNELLO PERSISTENTE LATERALE */
     function openPersistentPanel(idx) {
       if (idx < 0 || idx >= availableExercises.length) return;
       currentExerciseIdx = idx;
@@ -627,7 +638,6 @@
       document.getElementById('panel-ex-name').textContent = exName;
       document.getElementById('panel-ex-group').textContent = exGroup || 'ESERCIZIO';
       document.getElementById('panel-ex-target').textContent = `Target: ${ex.sets || 3}x${ex.reps || '10'}`;
-
       document.getElementById('panel-input-reps').value = parseInt(ex.reps) || 10;
       
       refreshPanelHistory();
@@ -635,11 +645,10 @@
       const mainCol = document.getElementById('main-workout-col');
       const panel = document.getElementById('persistent-panel');
 
-      mainCol.classList.remove('lg:col-span-12');
-      mainCol.classList.add('lg:col-span-7');
+      mainCol.classList.remove('lg:col-span-9');
+      mainCol.classList.add('lg:col-span-5');
       panel.classList.remove('hidden');
 
-      // Evidenzia card selezionata
       document.querySelectorAll('#exercises-list > div').forEach((c, i) => {
         if (i === idx) {
           c.classList.add('border-cyan-400', 'bg-cyan-950/20');
@@ -655,8 +664,8 @@
 
       if (panel) panel.classList.add('hidden');
       if (mainCol) {
-        mainCol.classList.remove('lg:col-span-7');
-        mainCol.classList.add('lg:col-span-12');
+        mainCol.classList.remove('lg:col-span-5');
+        mainCol.classList.add('lg:col-span-9');
       }
 
       document.querySelectorAll('#exercises-list > div').forEach(c => {
@@ -689,7 +698,6 @@
         `).join('');
       }
 
-      // Aggiorna anche i badge visibili sulla Card dell'Esercizio
       const cardBadgeContainer = document.getElementById(`card-badge-container-${currentExerciseIdx}`);
       if (cardBadgeContainer) {
         if (sets.length === 0) {
@@ -703,39 +711,38 @@
         }
       }
     }
-async function saveActivePanelSet() {
-  if (!activeClient) return;
 
-  const kgInput = document.getElementById('panel-input-kg');
-  const repsInput = document.getElementById('panel-input-reps');
-  
-  const kg = parseFloat(kgInput.value) || 0;
-  const reps = parseInt(repsInput.value) || 10;
-  const exName = document.getElementById('panel-ex-name').textContent;
+    async function saveActivePanelSet() {
+      if (!activeClient) return;
 
-  initAudio();
+      const kgInput = document.getElementById('panel-input-kg');
+      const repsInput = document.getElementById('panel-input-reps');
+      
+      const kg = parseFloat(kgInput.value) || 0;
+      const reps = parseInt(repsInput.value) || 10;
+      const exName = document.getElementById('panel-ex-name').textContent;
 
-  try {
-    // Inserimento compatibile con lo schema base della tabella
-    const { error } = await supabaseClient.from('workout_logs').insert([
-      { 
-        client_id: activeClient.id, 
-        exercise_name: exName, 
-        completed_sets: 1
-      }
-    ]);
+      initAudio();
 
-    if (error) throw error;
+      try {
+        const { error } = await supabaseClient.from('workout_logs').insert([
+          { 
+            client_id: activeClient.id, 
+            exercise_name: exName, 
+            completed_sets: 1
+          }
+        ]);
 
-    if (!loggedSetsMap[currentExerciseIdx]) loggedSetsMap[currentExerciseIdx] = [];
-    loggedSetsMap[currentExerciseIdx].push({ kg, reps });
+        if (error) throw error;
 
-    refreshPanelHistory();
-    startRest(90);
+        if (!loggedSetsMap[currentExerciseIdx]) loggedSetsMap[currentExerciseIdx] = [];
+        loggedSetsMap[currentExerciseIdx].push({ kg, reps });
 
-  } catch (err) {
-    alert("Errore salvataggio serie: " + err.message);
-   
+        refreshPanelHistory();
+        startRest(90);
+
+      } catch (err) {
+        alert("Errore salvataggio serie: " + err.message);
       }
     }
 
@@ -898,7 +905,15 @@ async function saveActivePanelSet() {
       await supabaseClient.from('clients').update({ current_session: nextSessionNum }).eq('id', activeClient.id);
 
       activeClient.current_session = nextSessionNum;
-      document.getElementById('session-count').textContent = `Sessione ${nextSessionNum}/${activeClient.total_sessions || 0}`;
+      
+      // Aggiorna contatore e progress bar scheda cliente a sinistra
+      const done = nextSessionNum;
+      const total = activeClient.total_sessions || 10;
+      const pct = Math.min(100, Math.round((done / total) * 100));
+
+      document.getElementById('card-sessions-count').textContent = `${done} / ${total}`;
+      document.getElementById('card-progress-pct').textContent = `${pct}%`;
+      document.getElementById('card-progress-bar').style.width = `${pct}%`;
 
       activeSessionId = null;
       loadSessionsHistory(activeClient.id);
@@ -993,7 +1008,7 @@ async function saveActivePanelSet() {
         toggleModal('modal-exercise', false);
         if (typeof activeClient !== 'undefined' && activeClient) {
           await loadClientWorkout(activeClient);
-          openPersistentPanel(availableExercises.length - 1); // Apri subito il nuovo esercizio
+          openPersistentPanel(availableExercises.length - 1);
         }
 
       } catch (err) {
