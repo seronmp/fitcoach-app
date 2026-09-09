@@ -189,9 +189,9 @@
             <p id="panel-ex-target" class="text-xs font-mono text-slate-400 mt-1">Target: 3x10</p>
           </div>
 
-          <!-- ANIMAZIONE / GIF MOVIMENTO ESERCIZIO -->
-          <div class="relative w-full h-44 bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden flex items-center justify-center group">
-            <img id="panel-ex-anim" src="" alt="Animazione esercizio" class="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105">
+          <!-- ANIMAZIONE MOVIMENTO ESERCIZIO -->
+          <div class="relative w-full h-44 bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden flex items-center justify-center p-3 group">
+            <img id="panel-ex-anim" src="" alt="Animazione esercizio" onerror="handleImageError(this)" class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105">
             <div class="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur px-2 py-0.5 rounded text-[10px] text-cyan-400 font-mono border border-slate-700">
               ⚡ <span data-i18n="motion_preview">Esecuzione Corretta</span>
             </div>
@@ -312,7 +312,7 @@
       <input type="text" id="new-ex-name-it" placeholder="Nome Esercizio (Italiano)" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
       <input type="text" id="new-ex-name-en" placeholder="Exercise Name (English)" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
       <input type="text" id="new-ex-group" placeholder="Gruppo Muscolare (es. Gambe / Legs)" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
-      <input type="text" id="new-ex-gif" placeholder="URL GIF Animata (opzionale)" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
+      <input type="text" id="new-ex-gif" placeholder="URL Immagine/GIF (opzionale)" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
       <div class="flex gap-2">
         <input type="number" id="new-ex-sets" placeholder="Serie (4)" class="w-1/2 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
         <input type="text" id="new-ex-reps" placeholder="Reps (8-10)" class="w-1/2 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-cyan-400">
@@ -345,15 +345,15 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxa3R6YWN2dWhzcGRqZGN3Y254Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1Mjg3MjYsImV4cCI6MjEwNDEwNDcyNn0.iTdWadVFqK1nh-iOFrwto7t3tXr346lJ9UpLwETGJnc";
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Mappa GIF animate di default per gli esercizi principali
+    // SVG diretti ad alta qualità puliti e senza blocchi di dominio
     const EXERCISE_GIFS = {
-      'squat': 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHpuc3p1MnJvbmR1bjV2MjlzaG5hZGZ1NmtocXRzYmtyNGN6bTFxZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1qfKN8Dt0AM84860bW/giphy.gif',
-      'bench': 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDVqbmpxdWFveXpuc3RwMXlmdDVhbWNiaHMzaHMxZWtyM2p2enNydCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKT063S2320E9E8/giphy.gif',
-      'press': 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExczJybms1eDZ3MnRndW5yazRpaXZvYWFmNnNycmEwbWNsbGF0OHZxbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIPeCUSGInR8P1cI/giphy.gif',
-      'thrust': 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaG9uZ3JmMnIyaDB5ZHlqcmRzeDNsbzhsdnAyeGtrNDRocGFuZ2h0NSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26gssIytJFF1b1280/giphy.gif'
+      'squat': 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" stroke="%2322d3ee" stroke-width="6" stroke-linecap="round"><circle cx="100" cy="40" r="14" stroke="%2338bdf8"/><path d="M100 54v45M80 70l20 10 20-10M100 99l-25 35-15 35M100 99l25 35 15 35"/><line x1="50" y1="65" x2="150" y2="65" stroke="%2334d399" stroke-width="8"/></svg>',
+      'bench': 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" stroke="%2322d3ee" stroke-width="6" stroke-linecap="round"><circle cx="60" cy="110" r="14" stroke="%2338bdf8"/><path d="M74 115h50M80 115l15-25 30 5M60 140h100" stroke="%2364748b"/><line x1="110" y1="60" x2="110" y2="130" stroke="%2334d399" stroke-width="8"/><line x1="80" y1="140" x2="80" y2="170" stroke="%2364748b"/><line x1="140" y1="140" x2="140" y2="170" stroke="%2364748b"/></svg>',
+      'press': 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" stroke="%2322d3ee" stroke-width="6" stroke-linecap="round"><circle cx="100" cy="50" r="14" stroke="%2338bdf8"/><path d="M100 64v50M80 80l20-15 20 15M100 114l-15 55M100 114l15 55"/><line x1="55" y1="50" x2="145" y2="50" stroke="%2334d399" stroke-width="8"/></svg>',
+      'thrust': 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" stroke="%2322d3ee" stroke-width="6" stroke-linecap="round"><circle cx="60" cy="90" r="14" stroke="%2338bdf8"/><path d="M74 98l30 12 30-20M104 110v45M134 90v65"/><rect x="40" y="130" width="40" height="25" rx="5" stroke="%2364748b"/><circle cx="100" cy="100" r="12" fill="%2334d399"/></svg>'
     };
 
-    const FALLBACK_GIF = 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=600&q=80';
+    const FALLBACK_GIF = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" stroke="%2306b6d4" stroke-width="6" stroke-linecap="round"><circle cx="100" cy="50" r="16"/><path d="M100 66v45M75 85l25-10 25 10M100 111l-20 50M100 111l20 50"/><circle cx="100" cy="100" r="70" stroke="%23334155" stroke-dasharray="8 8"/></svg>';
 
     let activeClient = null;
     let availableExercises = [];
@@ -495,6 +495,11 @@
       }
     };
 
+    function handleImageError(img) {
+      img.onerror = null;
+      img.src = FALLBACK_GIF;
+    }
+
     function changeLanguage(lang) {
       currentLang = lang;
       document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -504,7 +509,6 @@
         }
       });
 
-      // Ricarica la scheda per tradurre dinamicamente gli esercizi
       if (activeClient) {
         renderExerciseList();
         if (!document.getElementById('persistent-panel').classList.contains('hidden')) {
@@ -699,11 +703,10 @@
       document.getElementById('panel-ex-target').textContent = `Target: ${ex.sets || 3}x${ex.reps || '10'}`;
       document.getElementById('panel-input-reps').value = parseInt(ex.reps) || 10;
       
-      // Carica la GIF animata appropriata
       const animImg = document.getElementById('panel-ex-anim');
       let gifUrl = ex.gif_url;
 
-      if (!gifUrl) {
+      if (!gifUrl || gifUrl.includes('giphy.com')) {
         const lowerName = exName.toLowerCase();
         if (lowerName.includes('squat')) gifUrl = EXERCISE_GIFS.squat;
         else if (lowerName.includes('panca') || lowerName.includes('bench')) gifUrl = EXERCISE_GIFS.bench;
